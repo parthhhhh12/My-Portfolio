@@ -422,7 +422,7 @@ export default function App() {
                   Professional Summary
                 </h3>
                 <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-                  Data Engineer with strong hands-on experience in designing, building, and optimizing scalable data pipelines using PySpark, Databricks, Microsoft Azure, Snowflake, and dbt. Experienced in implementing end-to-end ETL/ELT workflows, transforming raw data into analytics-ready datasets, and working with cloud-based data warehouses.
+                Data Engineer with strong hands-on experience in designing, building, and optimizing scalable data pipelines using PySpark, Databricks, Microsoft Azure, Snowflake, and dbt. Experienced in implementing end-to-end ETL/ELT workflows, transforming raw data into analytics-ready datasets, and working with cloud-based data warehouses.
                 </p>
               </div>
 
