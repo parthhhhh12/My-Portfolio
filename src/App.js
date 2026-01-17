@@ -94,7 +94,7 @@ const SKILLS = [
   {
     name: "PySpark",
     proficiency: "Intermediate",
-    description: "Production experience",
+    description: "1+ years experience",
     colorClass: "bg-orange-500",
     dots: 4,
     percent: 78,
@@ -102,7 +102,7 @@ const SKILLS = [
   {
     name: "Microsoft Azure",
     proficiency: "Intermediate",
-    description: "Certified practitioner",
+    description: "2+ years experience",
     colorClass: "bg-cyan-500",
     dots: 4,
     percent: 74,
@@ -110,7 +110,7 @@ const SKILLS = [
   {
     name: "Databricks",
     proficiency: "Intermediate",
-    description: "Hands-on projects",
+    description: "1+ years experience",
     colorClass: "bg-red-500",
     dots: 4,
     percent: 75,
@@ -118,10 +118,26 @@ const SKILLS = [
   {
     name: "SQL",
     proficiency: "Advanced",
-    description: "Complex queries & optimization",
+    description: "2+ years experience",
     colorClass: "bg-green-500",
     dots: 5,
     percent: 90,
+  },
+  {
+    name: "Snowflake",
+    proficiency: "Intermediate",
+    description: "1+ years experience",
+    colorClass: "bg-purple-500",
+    dots: 4,
+    percent: 72,
+  },
+  {
+    name: "Dbt",
+    proficiency: "Intermediate",
+    description: "1+ years experience",
+    colorClass: "bg-purple-500",
+    dots: 4,
+    percent: 72,
   },
   {
     name: "Delta Lake",
@@ -130,14 +146,6 @@ const SKILLS = [
     colorClass: "bg-purple-500",
     dots: 4,
     percent: 72,
-  },
-  {
-    name: "ETL/ELT",
-    proficiency: "Intermediate",
-    description: "Pipeline development",
-    colorClass: "bg-yellow-400",
-    dots: 4,
-    percent: 70,
   },
   {
     name: "Java",
@@ -414,12 +422,7 @@ export default function App() {
                   Professional Summary
                 </h3>
                 <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-                  Aspiring Data Engineer with hands-on training in modern data
-                  engineering technologies, currently gaining practical
-                  experience in PySpark, Databricks, and Microsoft Azure.
-                  Actively learning and implementing key ETL/ELT processes, with
-                  a solid understanding of big data fundamentals, distributed
-                  computing, and scalable data pipelines.
+                  Data Engineer with strong hands-on experience in designing, building, and optimizing scalable data pipelines using PySpark, Databricks, Microsoft Azure, Snowflake, and dbt. Experienced in implementing end-to-end ETL/ELT workflows, transforming raw data into analytics-ready datasets, and working with cloud-based data warehouses.
                 </p>
               </div>
 
