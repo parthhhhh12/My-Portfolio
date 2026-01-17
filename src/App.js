@@ -215,18 +215,6 @@ const PROJECTS = [
    Small Utility Components
    ============================ */
 
-const IconButton = ({ children, href, label }) => (
-  <a
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label={label}
-    className="bg-gray-800 p-3 rounded-full hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
-  >
-    {children}
-  </a>
-);
-
 /* ============================
    Main App
    ============================ */
