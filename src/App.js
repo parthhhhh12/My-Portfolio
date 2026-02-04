@@ -74,7 +74,7 @@ const floatY = {
    ============================ */
 
 const QUICK_PROOF = [
-  { icon: <Layers size={18} />, label: "Projects", value: "5+ Data Pipelines" },
+  { icon: <Layers size={18} />, label: "Projects", value: "3+ Data Pipelines" },
   { icon: <Award size={18} />, label: "Certifications", value: "Databricks + SQL" },
   { icon: <BarChart3 size={18} />, label: "Strength", value: "ETL/ELT + Warehousing" },
 ];
