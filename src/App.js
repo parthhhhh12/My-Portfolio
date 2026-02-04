@@ -1,5 +1,5 @@
- // src/App.jsx
-import React, { useEffect, useState, useRef } from "react";
+// src/App.jsx
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   Award,
   ChevronDown,
@@ -25,12 +25,22 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 
 /* ============================
+   Constants (IMPORTANT for Vercel/CI build)
+   - Kept outside component to avoid exhaustive-deps warnings
+   ============================ */
+
+const SECTION_IDS = ["home", "about", "strengths", "skills", "projects", "certifications", "contact"];
+
+/* ============================
    Animation Variants
    ============================ */
 
 const containerStagger = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.12 } },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.12, delayChildren: 0.12 },
+  },
 };
 
 const cardFade = (direction = "up", delay = 0) => ({
@@ -60,12 +70,12 @@ const floatY = {
 };
 
 /* ============================
-   Content (Upgraded for recruiters)
+   Content
    ============================ */
 
 const QUICK_PROOF = [
   { icon: <Layers size={18} />, label: "Projects", value: "5+ Data Pipelines" },
-  { icon: <Award size={18} />, label: "Certifications", value: "AWS + SQL" },
+  { icon: <Award size={18} />, label: "Certifications", value: "Databricks + SQL" },
   { icon: <BarChart3 size={18} />, label: "Strength", value: "ETL/ELT + Warehousing" },
 ];
 
@@ -88,11 +98,6 @@ const SKILLS = [
   { name: "Java", proficiency: "Intermediate", description: "OOP fundamentals", colorClass: "bg-pink-500", dots: 3, percent: 60 },
 ];
 
-/**
- * IMPORTANT:
- * Recruiter-ready projects are “case studies” not lists.
- * Add impact numbers when you can (even approximate, but honest).
- */
 const PROJECTS = [
   {
     title: "Batch ETL Pipeline on Azure Databricks (NYC Taxi – 10M+ rows)",
@@ -123,32 +128,34 @@ const PROJECTS = [
     repo: "https://github.com/parthhhhh12/Data_Engineering_Personal_Project",
   },
   {
-    title: "Automated Data Pipeline with Azure Data Factory + Databricks (NYC Taxi)",
+    title: "End-to-End Data Engineering Pipeline (Azure Synapse + Snowflake + dbt)",
     duration: "Self-Project",
     client: "Personal Development",
     problem:
-      "Manual pipelines don’t scale. Data ingestion + transformation must be automated, repeatable, and scheduled.",
+      "Manual ingestion and inconsistent validation lead to unreliable analytics. Teams need automated pipelines with clean/error separation and tested transformations.",
     objective:
-      "Automate ingestion and transformations for NYC Taxi data using ADF pipelines and mapping flows, with analytics in Databricks.",
+      "Build an event-driven, production-style pipeline that ingests CSV files from ADLS Gen2, loads RAW data into Snowflake, separates CLEAN/ERROR records, and builds analytics-ready marts using dbt with tests.",
     approach: [
-      "Parameterized ADF pipelines to ingest raw data into ADLS Gen2",
-      "ADF Mapping Data Flows for transformation + schema enforcement",
-      "Store curated outputs in Parquet for scalable downstream reads",
-      "Analyze curated data in Databricks notebooks for vendor/payment insights",
+      "Storage Event Trigger to automatically detect new files in ADLS Gen2",
+      "Dynamic Synapse pipeline using Get Metadata + ForEach for file iteration",
+      "Copy Activity to load each file into Snowflake RAW tables",
+      "Validation logic to split records into CLEAN and ERROR layers with reconciliation",
+      "dbt models (staging → marts) with tests for data quality and business rules",
     ],
     impact: [
-      "Built scheduled pipeline runs (weekly trigger) for hands-free execution",
-      "Produced curated Parquet outputs suitable for BI or warehouse loading",
-      "Derived insights (vendor share, payment patterns) from processed data",
+      "Implemented RAW/CLEAN/ERROR layering in Snowflake for reliable downstream analytics",
+      "Automated ingestion with event-based trigger + dynamic file processing (no hardcoded file list)",
+      "Added reconciliation checks to ensure RAW = CLEAN + ERROR (no silent data loss)",
+      "Built analytics-ready marts with dbt + tests to validate data quality",
     ],
     architecture: [
-      "ADF (ingest + orchestration)",
-      "ADLS Gen2 (raw/curated zones)",
-      "ADF Mapping Data Flows (transform)",
-      "Databricks (analysis + notebooks)",
+      "ADLS Gen2 (CSV)",
+      "Azure Synapse Pipelines (trigger + dynamic loop)",
+      "Snowflake (RAW/CLEAN/ERROR)",
+      "dbt (staging → marts + tests)",
     ],
-    tech: ["Azure Data Factory", "ADLS Gen2", "Azure Databricks", "Mapping Data Flows", "Parquet"],
-    repo: "https://github.com/parthhhhh12/ADF_Pipeline_Data_Project",
+    tech: ["Azure Synapse", "ADLS Gen2", "Snowflake", "dbt", "SQL"],
+    repo: "https://github.com/parthhhhh12/-end-to-end-data-engineering-azure-synapse-snowflake.git",
   },
 ];
 
@@ -190,7 +197,9 @@ function SectionShell({ id, title, subtitle, children, bg }) {
         >
           {title}
         </motion.h2>
-        {subtitle && <p className="mt-3 text-center text-gray-300 max-w-3xl mx-auto">{subtitle}</p>}
+        {subtitle ? (
+          <p className="mt-3 text-center text-gray-300 max-w-3xl mx-auto">{subtitle}</p>
+        ) : null}
         <div className="mt-8 sm:mt-12">{children}</div>
       </div>
     </section>
@@ -229,9 +238,22 @@ export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [dark, setDark] = useState(true);
 
-  const sectionIds = ["home", "about", "strengths", "skills", "projects", "certifications", "contact"];
   const sectionRefs = useRef({});
 
+  // keep a stable list to satisfy linting + avoid re-creating arrays
+  const sectionIds = useMemo(() => SECTION_IDS, []);
+
+  const scrollTo = useCallback(
+    (id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActiveSection(id);
+    },
+    [setActiveSection]
+  );
+
+  // Scroll + intersection observer (lint-safe)
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", onScroll);
@@ -257,20 +279,13 @@ export default function App() {
       window.removeEventListener("scroll", onScroll);
       observer.disconnect();
     };
-  }, []);
+  }, [sectionIds]);
 
   useEffect(() => {
     const html = document.documentElement;
     if (dark) html.classList.add("dark");
     else html.classList.remove("dark");
   }, [dark]);
-
-  const scrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-    setActiveSection(id);
-  };
 
   return (
     <div className={`min-h-screen transition-colors duration-500 ${dark ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
@@ -294,7 +309,7 @@ export default function App() {
             </div>
 
             <div className="hidden md:flex items-center gap-6">
-              {["home", "about", "strengths", "skills", "projects", "certifications", "contact"].map((s) => (
+              {SECTION_IDS.map((s) => (
                 <button
                   key={s}
                   onClick={() => scrollTo(s)}
@@ -344,10 +359,9 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
           >
-            Parth Singh
+            Parth
           </motion.h1>
 
-          {/* Stronger recruiter clarity */}
           <motion.h2
             className="mt-2 text-lg sm:text-xl md:text-2xl text-blue-300 px-2 font-semibold"
             initial={{ opacity: 0, y: 8 }}
@@ -358,11 +372,10 @@ export default function App() {
           </motion.h2>
 
           <motion.p className="mt-4 text-sm sm:text-base text-gray-300 max-w-3xl mx-auto px-4">
-            I build scalable data pipelines and analytics-ready datasets using cloud-native tools.
-            Strong in SQL + PySpark, with hands-on experience across ingestion, transformation, and curated data layers.
+            I build scalable data pipelines and analytics-ready datasets using cloud-native tools. Strong in SQL + PySpark, with hands-on
+            experience across ingestion, transformation, and curated data layers.
           </motion.p>
 
-          {/* Proof cards */}
           <motion.div
             className="mt-6 grid sm:grid-cols-3 gap-3 max-w-4xl mx-auto px-4"
             initial="hidden"
@@ -397,8 +410,7 @@ export default function App() {
               rel="noopener noreferrer"
               className="w-full sm:w-auto border border-gray-500 px-6 py-3 rounded-lg font-semibold inline-flex items-center justify-center gap-2 hover:border-white"
             >
-              View Resume
-              <ArrowUpRight size={16} />
+              View Resume <ArrowUpRight size={16} />
             </a>
           </motion.div>
         </motion.div>
@@ -423,9 +435,9 @@ export default function App() {
                 Professional Summary
               </h3>
               <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-                Data Engineer with hands-on experience designing, building, and optimizing scalable pipelines using
-                PySpark, Databricks, Microsoft Azure, Snowflake, and dbt. I focus on clean data layers, schema enforcement,
-                and building analytics-ready datasets for reporting and BI use cases.
+                Data Engineer with hands-on experience designing, building, and optimizing scalable pipelines using PySpark, Databricks,
+                Microsoft Azure, Snowflake, and dbt. I focus on clean data layers, schema enforcement, and building analytics-ready datasets
+                for reporting and BI use cases.
               </p>
             </div>
 
@@ -447,8 +459,8 @@ export default function App() {
             <div className="bg-gray-700 rounded-xl p-4 sm:p-6 shadow">
               <h3 className="text-lg sm:text-xl font-semibold mb-3">What I enjoy</h3>
               <p className="text-sm sm:text-base text-gray-300">
-                Problem solving, building reliable systems, and turning messy data into clean datasets that stakeholders can trust.
-                I enjoy learning new tools in the modern data stack and improving pipeline reliability.
+                Problem solving, building reliable systems, and turning messy data into clean datasets that stakeholders can trust. I enjoy
+                learning new tools in the modern data stack and improving pipeline reliability.
               </p>
             </div>
 
@@ -465,12 +477,8 @@ export default function App() {
         </motion.div>
       </SectionShell>
 
-      {/* ---------- WHY HIRE ME ---------- */}
-      <SectionShell
-        id="strengths"
-        title="What I Bring"
-        subtitle="Recruiter-friendly summary of how I can contribute in a data engineering role."
-      >
+      {/* ---------- WHAT I BRING ---------- */}
+      <SectionShell id="strengths" title="What I Bring" subtitle="A short summary">
         <motion.div className="grid lg:grid-cols-2 gap-6" initial="hidden" whileInView="show" variants={containerStagger} viewport={{ once: true }}>
           <motion.div variants={cardFade("up", 0.05)} className="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow">
             <h3 className="text-xl font-bold text-blue-300 flex items-center gap-2">
@@ -492,8 +500,9 @@ export default function App() {
               <Briefcase size={20} className="text-blue-300" />
               Roles I’m targeting
             </h3>
+
             <div className="mt-4 flex flex-wrap gap-2">
-              {["Data Engineer", "Associate Data Engineer", "Analytics Engineer", "ETL Developer"].map((r) => (
+              {["Data Engineer", "Data Architect", "DataOps Engineer", "MLOps Engineer"].map((r) => (
                 <span key={r} className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm border border-gray-600">
                   {r}
                 </span>
@@ -503,8 +512,8 @@ export default function App() {
             <div className="mt-6 bg-gray-700/60 border border-gray-600 rounded-xl p-4">
               <div className="text-sm text-gray-200 font-semibold">Quick note</div>
               <p className="mt-1 text-sm text-gray-300">
-                I’m especially strong in pipeline construction and curated dataset design — and I’m building more
-                production-style docs/diagrams to match real teams.
+                I’m especially strong in pipeline construction and curated dataset design — and I’m building more production-style
+                docs/diagrams to match real teams.
               </p>
             </div>
           </motion.div>
@@ -512,7 +521,11 @@ export default function App() {
       </SectionShell>
 
       {/* ---------- SKILLS ---------- */}
-      <SectionShell id="skills" title="Skills & Technologies" subtitle="A snapshot of tools and strengths aligned to data engineering job descriptions.">
+      <SectionShell
+        id="skills"
+        title="Skills & Technologies"
+        subtitle="A snapshot of tools and strengths aligned to data engineering job descriptions."
+      >
         <motion.div
           className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-10"
           initial="hidden"
@@ -611,11 +624,11 @@ export default function App() {
         </motion.div>
       </SectionShell>
 
-      {/* ---------- PROJECTS (Case Studies) ---------- */}
+      {/* ---------- PROJECTS ---------- */}
       <SectionShell
         id="projects"
         title="Project Case Studies"
-        subtitle="Each project is presented the way recruiters and hiring managers like: problem → solution → impact → architecture."
+        subtitle="A selection of projects showcasing end-to-end pipelines, data quality, and analytics-ready transformations."
         bg="bg-gray-800"
       >
         <motion.div className="space-y-6 sm:space-y-8" initial="hidden" whileInView="show" variants={containerStagger} viewport={{ once: true }}>
@@ -706,8 +719,23 @@ export default function App() {
       </SectionShell>
 
       {/* ---------- CERTIFICATIONS ---------- */}
-      <SectionShell id="certifications" title="Certifications" subtitle="Clickable proof. These links matter for trust.">
+      <SectionShell id="certifications" title="Certifications" subtitle={null}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-5xl mx-auto">
+          <a
+            href="https://credentials.databricks.com/80290364-9760-4912-80bb-628ecb05f2d6#acc.1QyUwPgn"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-gray-800 p-5 rounded-2xl hover:bg-gray-700 transition-colors shadow-md border border-gray-700"
+          >
+            <div className="flex items-center space-x-4">
+              <Award size={26} className="text-red-400 flex-shrink-0" />
+              <div className="min-w-0">
+                <h3 className="text-lg font-semibold truncate">Databricks Certified</h3>
+                <p className="text-gray-400">Data Engineer Associate</p>
+              </div>
+            </div>
+          </a>
+
           <a
             href="https://www.credly.com/badges/a97174d7-ca41-4aa8-afe9-0163699dcb66/public_url"
             target="_blank"
@@ -752,21 +780,6 @@ export default function App() {
               </div>
             </div>
           </a>
-
-          <a
-            href="https://www.hackerrank.com/certificates/f507e955aa98"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-gray-800 p-5 rounded-2xl hover:bg-gray-700 transition-colors shadow-md border border-gray-700"
-          >
-            <div className="flex items-center space-x-4">
-              <Award size={26} className="text-blue-400 flex-shrink-0" />
-              <div className="min-w-0">
-                <h3 className="text-lg font-semibold truncate">HackerRank SQL</h3>
-                <p className="text-gray-400">Basic</p>
-              </div>
-            </div>
-          </a>
         </div>
       </SectionShell>
 
@@ -774,14 +787,13 @@ export default function App() {
       <SectionShell
         id="contact"
         title="Let’s Connect"
-        subtitle="If you’re hiring for data engineering roles, I’d love to chat."
+        subtitle="If you’re hiring for data engineering and similar roles, I’d love to chat."
         bg="bg-gray-800"
       >
         <motion.div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-start" initial="hidden" whileInView="show" variants={containerStagger} viewport={{ once: true }}>
           <motion.div variants={cardFade("up", 0.06)} className="bg-gray-800 rounded-xl p-6 sm:p-8 shadow border border-gray-700 order-2 md:order-1">
             <p className="text-gray-300 mb-6">
-              I’m actively seeking opportunities in data engineering roles where I can apply my cloud-native skills
-              and keep growing with modern data stacks.
+              I’m actively seeking opportunities in data engineering roles where I can apply my cloud-native skills and keep growing with modern data stacks.
             </p>
 
             <div className="space-y-4">
@@ -851,14 +863,18 @@ export default function App() {
               <textarea
                 name="message"
                 id="message"
-                rows="5"
+                rows={5}
                 required
                 className="w-full p-3 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 placeholder="Write your message here..."
               />
             </div>
 
-            <motion.button whileTap={{ scale: 0.97 }} type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              type="submit"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all"
+            >
               Send Message
             </motion.button>
 
@@ -872,7 +888,7 @@ export default function App() {
       {/* ---------- FOOTER ---------- */}
       <footer className="py-8 bg-gray-900 border-t border-gray-700">
         <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-sm text-gray-400">© 2026 Parth Singh.</p>
+          <p className="text-sm text-gray-400">© 2026 Parth.</p>
         </div>
       </footer>
     </div>
@@ -880,7 +896,7 @@ export default function App() {
 }
 
 /* ============================
-   Mobile Menu (Fixed + clean)
+   Mobile Menu
    ============================ */
 function MobileMenu({ onNavigate, activeSection, dark, setDark }) {
   const [open, setOpen] = useState(false);
@@ -957,8 +973,8 @@ function MobileMenu({ onNavigate, activeSection, dark, setDark }) {
                   className="p-2 rounded-md bg-gray-800 hover:bg-gray-700 transition-colors active:scale-95"
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
                 </button>
               </div>
@@ -979,8 +995,13 @@ function MobileMenu({ onNavigate, activeSection, dark, setDark }) {
                 </nav>
 
                 <div className="flex flex-col items-center text-center mt-10 px-4 pb-10">
-                  <img src="/img.jpeg" alt="Parth" className="w-24 h-24 rounded-full object-cover border-4 border-blue-600 shadow-xl" />
-                  <h3 className="mt-4 text-2xl font-extrabold">Parth Singh</h3>
+                  <img
+                    src="/img.jpeg"
+                    alt="Parth"
+                    className="w-24 h-24 rounded-full object-cover border-4 border-blue-600 shadow-xl"
+                  />
+
+                  <h3 className="mt-4 text-2xl font-extrabold">Parth</h3>
 
                   <label className="mt-3 inline-flex items-center gap-2 text-sm text-gray-300">
                     <input
@@ -1012,13 +1033,12 @@ function MobileMenu({ onNavigate, activeSection, dark, setDark }) {
                       rel="noopener noreferrer"
                       className="w-full border border-gray-600 px-6 py-3 rounded-lg font-semibold inline-flex items-center justify-center gap-2 hover:border-white text-gray-200"
                     >
-                      View Resume
-                      <ArrowUpRight size={16} />
+                      View Resume <ArrowUpRight size={16} />
                     </a>
                   </div>
 
                   <div className="mt-8 border-t border-gray-700 pt-6 text-center text-sm text-gray-500 w-full">
-                    <p className="font-semibold text-gray-300">Parth Singh</p>
+                    <p className="font-semibold text-gray-300">Parth</p>
                     <p className="mt-1">© 2026 All rights reserved</p>
                   </div>
                 </div>
