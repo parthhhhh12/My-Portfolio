@@ -100,34 +100,6 @@ const SKILLS = [
 
 const PROJECTS = [
   {
-    title: "Batch ETL Pipeline on Azure Databricks (NYC Taxi – 10M+ rows)",
-    duration: "Self-Project",
-    client: "Personal Development",
-    problem:
-      "Raw NYC Taxi trip data is large, messy, and not directly usable for analytics. BI needs clean, typed, aggregated tables.",
-    objective:
-      "Build a scalable batch ETL pipeline that produces clean + analytics-ready datasets and vendor-level daily aggregates.",
-    approach: [
-      "Ingest raw NYC Taxi data from Azure Blob Storage",
-      "Clean + enforce schema (type casting, null handling, filtering)",
-      "Transform into curated layers (raw → cleaned → aggregated)",
-      "Write output in Parquet for fast querying + BI integration",
-    ],
-    impact: [
-      "Processed 10M+ rows using Spark DataFrames with consistent schema enforcement",
-      "Delivered curated datasets optimized for analytics and reporting workflows",
-      "Designed a clean-layer data model (raw/clean/agg) using DBML",
-    ],
-    architecture: [
-      "Azure Blob (raw)",
-      "Databricks (PySpark ETL)",
-      "Curated Parquet (cleaned + aggregated)",
-      "BI / Analytics (downstream)",
-    ],
-    tech: ["Azure Databricks", "PySpark", "Azure Blob Storage", "Parquet", "DBML"],
-    repo: "https://github.com/parthhhhh12/Data_Engineering_Personal_Project",
-  },
-  {
     title: "End-to-End Data Engineering Pipeline (Azure Synapse + Snowflake + dbt)",
     duration: "Self-Project",
     client: "Personal Development",
@@ -157,6 +129,36 @@ const PROJECTS = [
     tech: ["Azure Synapse", "ADLS Gen2", "Snowflake", "dbt", "SQL"],
     repo: "https://github.com/parthhhhh12/-end-to-end-data-engineering-azure-synapse-snowflake.git",
   },
+
+  {
+    title: "Batch ETL Pipeline on Azure Databricks (NYC Taxi – 10M+ rows)",
+    duration: "Self-Project",
+    client: "Personal Development",
+    problem:
+      "Raw NYC Taxi trip data is large, messy, and not directly usable for analytics. BI needs clean, typed, aggregated tables.",
+    objective:
+      "Build a scalable batch ETL pipeline that produces clean + analytics-ready datasets and vendor-level daily aggregates.",
+    approach: [
+      "Ingest raw NYC Taxi data from Azure Blob Storage",
+      "Clean + enforce schema (type casting, null handling, filtering)",
+      "Transform into curated layers (raw → cleaned → aggregated)",
+      "Write output in Parquet for fast querying + BI integration",
+    ],
+    impact: [
+      "Processed 10M+ rows using Spark DataFrames with consistent schema enforcement",
+      "Delivered curated datasets optimized for analytics and reporting workflows",
+      "Designed a clean-layer data model (raw/clean/agg) using DBML",
+    ],
+    architecture: [
+      "Azure Blob (raw)",
+      "Databricks (PySpark ETL)",
+      "Curated Parquet (cleaned + aggregated)",
+      "BI / Analytics (downstream)",
+    ],
+    tech: ["Azure Databricks", "PySpark", "Azure Blob Storage", "Parquet", "DBML"],
+    repo: "https://github.com/parthhhhh12/Data_Engineering_Personal_Project",
+  },
+  
 ];
 
 /* ============================
