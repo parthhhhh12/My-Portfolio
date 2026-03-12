@@ -738,17 +738,17 @@ export default function App() {
             </div>
           </a>
 
-          <a
-            href="https://www.credly.com/badges/a97174d7-ca41-4aa8-afe9-0163699dcb66/public_url"
+           <a
+            href="https://credentials.databricks.com/e77bcf6d-f559-47e7-beca-608373a5660b#acc.mVhSLHf9"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-gray-800 p-5 rounded-2xl hover:bg-gray-700 transition-colors shadow-md border border-gray-700"
           >
             <div className="flex items-center space-x-4">
-              <Award size={26} className="text-yellow-400 flex-shrink-0" />
+              <Award size={26} className="text-red-400 flex-shrink-0" />
               <div className="min-w-0">
-                <h3 className="text-lg font-semibold truncate">AWS Academy Graduate</h3>
-                <p className="text-gray-400">Cloud Foundations</p>
+                <h3 className="text-lg font-semibold truncate">Databricks Certified</h3>
+                <p className="text-gray-400">Generative AI Engineer Associate</p>
               </div>
             </div>
           </a>
