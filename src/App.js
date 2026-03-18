@@ -138,10 +138,9 @@ const PROJECTS = [
 const TIMELINE = [
   { year: "2024", title: "Started Data Engineering Journey", desc: "Dove deep into SQL, Python, and cloud fundamentals on Azure.", icon: <Database size={16} />, color: "#06b6d4" },
   { year: "2025", title: "Built First Production Pipelines", desc: "Hands-on with PySpark, Databricks, Snowflake, dbt — end-to-end.", icon: <Server size={16} />, color: "#8b5cf6" },
-  { year: "2024", title: "Databricks Certifications", desc: "Earned Data Engineer Associate + Generative AI Engineer Associate.", icon: <Award size={16} />, color: "#f59e0b" },
+  { year: "2025", title: "Databricks Certifications", desc: "Earned Data Engineer Associate + Generative AI Engineer Associate.", icon: <Award size={16} />, color: "#f59e0b" },
   { year: "2026", title: "ML & MLOps Integration", desc: "Extended pipelines into ML — feature stores, MLflow, model registry.", icon: <Brain size={16} />, color: "#10b981" },
   { year: "2026", title: "Exploring Generative AI", desc: "RAG pipelines, Azure OpenAI, LLM integration in data workflows.", icon: <Sparkles size={16} />, color: "#ec4899" },
-  { year: "2027", title: "Now — Seeking Impact", desc: "Ready to apply the full DE+ML+GenAI stack in a production team.", icon: <Rocket size={16} />, color: "#f97316" },
 ];
 
 /* ============================
