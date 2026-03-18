@@ -683,7 +683,7 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
           >
-            Parth Singh
+            Parth 
           </motion.h1>
 
           <motion.div
