@@ -133,41 +133,15 @@ const PROJECTS = [
     tech: ["Azure Databricks", "PySpark", "Azure Blob Storage", "Parquet", "DBML"],
     repo: "https://github.com/parthhhhh12/Data_Engineering_Personal_Project",
   },
-  {
-    title: "ML Feature Pipeline + Model Tracking",
-    subtitle: "Databricks MLflow Integration",
-    duration: "Self-Project",
-    client: "Personal Development",
-    tag: "ML / MLOps",
-    tagColor: "from-violet-500 to-purple-700",
-    problem: "Raw data needs to be consistently transformed into ML-ready features. Model experiments lack tracking and reproducibility across runs.",
-    objective: "Build a feature engineering pipeline that feeds directly into ML model training, with full experiment tracking via MLflow on Databricks.",
-    approach: [
-      "Ingest and validate raw data with schema enforcement",
-      "Feature engineering: encoding, scaling, and aggregation using PySpark",
-      "Train classification models (Sklearn) tracked with MLflow experiments",
-      "Log parameters, metrics, and artifacts to MLflow Model Registry",
-      "Register best model for downstream serving/batch inference",
-    ],
-    impact: [
-      "Consistent, reproducible feature pipeline integrated with model training",
-      "Full experiment tracking: metrics, params, and model artifacts versioned",
-      "Model registry enables controlled promotion from staging to production",
-      "Foundation for batch inference and future real-time serving",
-    ],
-    architecture: ["Raw Data (ADLS)", "Feature Pipeline (PySpark)", "MLflow Experiments (Databricks)", "Model Registry → Inference"],
-    tech: ["Databricks", "MLflow", "PySpark", "Sklearn", "Python"],
-    repo: "https://github.com/parthhhhh12",
-  },
 ];
 
 const TIMELINE = [
-  { year: "2023", title: "Started Data Engineering Journey", desc: "Dove deep into SQL, Python, and cloud fundamentals on Azure.", icon: <Database size={16} />, color: "#06b6d4" },
-  { year: "2024", title: "Built First Production Pipelines", desc: "Hands-on with PySpark, Databricks, Snowflake, dbt — end-to-end.", icon: <Server size={16} />, color: "#8b5cf6" },
+  { year: "2024", title: "Started Data Engineering Journey", desc: "Dove deep into SQL, Python, and cloud fundamentals on Azure.", icon: <Database size={16} />, color: "#06b6d4" },
+  { year: "2025", title: "Built First Production Pipelines", desc: "Hands-on with PySpark, Databricks, Snowflake, dbt — end-to-end.", icon: <Server size={16} />, color: "#8b5cf6" },
   { year: "2024", title: "Databricks Certifications", desc: "Earned Data Engineer Associate + Generative AI Engineer Associate.", icon: <Award size={16} />, color: "#f59e0b" },
-  { year: "2025", title: "ML & MLOps Integration", desc: "Extended pipelines into ML — feature stores, MLflow, model registry.", icon: <Brain size={16} />, color: "#10b981" },
-  { year: "2025", title: "Exploring Generative AI", desc: "RAG pipelines, Azure OpenAI, LLM integration in data workflows.", icon: <Sparkles size={16} />, color: "#ec4899" },
-  { year: "2026", title: "Now — Seeking Impact", desc: "Ready to apply the full DE+ML+GenAI stack in a production team.", icon: <Rocket size={16} />, color: "#f97316" },
+  { year: "2026", title: "ML & MLOps Integration", desc: "Extended pipelines into ML — feature stores, MLflow, model registry.", icon: <Brain size={16} />, color: "#10b981" },
+  { year: "2026", title: "Exploring Generative AI", desc: "RAG pipelines, Azure OpenAI, LLM integration in data workflows.", icon: <Sparkles size={16} />, color: "#ec4899" },
+  { year: "2027", title: "Now — Seeking Impact", desc: "Ready to apply the full DE+ML+GenAI stack in a production team.", icon: <Rocket size={16} />, color: "#f97316" },
 ];
 
 /* ============================
