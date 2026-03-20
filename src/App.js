@@ -692,10 +692,9 @@ export default function App() {
             transition={{ delay: 0.35 }}
           >
             <TypingText texts={[
-              "Data Engineer",
+              "Data and AI Engineer",
               "MLOps Practitioner",
               "Generative AI Explorer",
-              "Cloud Architect",
               "Pipeline Builder",
             ]} />
           </motion.div>
@@ -1224,7 +1223,7 @@ export default function App() {
             </div>
             <span className="text-sm font-black">Parth<span className="text-violet-400">.</span></span>
           </div>
-          <p className="text-xs text-gray-600">© 2026 Parth Singh · Data Engineer · ML + GenAI Explorer</p>
+          <p className="text-xs text-gray-600">© 2026 Parth · Data Engineer · ML + GenAI Explorer</p>
           <div className="flex items-center gap-3">
             <a href="https://github.com/parthhhhh12" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-white transition-colors"><Github size={16} /></a>
             <a href="https://www.linkedin.com/in/singh05e/" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-cyan-400 transition-colors"><Linkedin size={16} /></a>
