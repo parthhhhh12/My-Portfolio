@@ -900,7 +900,7 @@ export default function App() {
                 <Briefcase size={16} /> Roles I'm Targeting
               </h3>
               <div className="flex flex-wrap gap-2">
-                {["Data Engineer", "ML Engineer", "MLOps Engineer", "Data Architect", "DataOps Engineer"].map((r, i) => (
+                {["Data and AI Engineer", "Data and AI Architect", "AI Platform Engineer", "AI Infrastructure Engineer"].map((r, i) => (
                   <motion.span
                     key={r}
                     className="px-3 py-1.5 rounded-full text-xs font-bold border"
