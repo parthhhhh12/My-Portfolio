@@ -818,7 +818,7 @@ export default function App() {
               </h3>
               <p className="font-bold text-sm">Bachelor of Technology — Computer Science Engineering</p>
               <p className="text-gray-400 text-sm">University of Petroleum and Energy Studies (UPES)</p>
-              <p className="text-violet-400 text-sm mt-1 font-semibold">Specialization: Cloud Computing</p>
+              <p className="text-violet-400 text-sm mt-1 font-semibold">Specialization: Cloud Computing and DevOps</p>
             </motion.div>
           </motion.div>
 
