@@ -564,7 +564,7 @@ export default function App() {
 
             <div className="flex items-center gap-3">
               <motion.a
-                href="/My_Latest_Data_Engineering.pdf"
+                href="/Data_and_AI_Resume.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hidden md:inline-flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg border border-violet-500/60 text-violet-300 hover:bg-violet-600/20 transition-all"
