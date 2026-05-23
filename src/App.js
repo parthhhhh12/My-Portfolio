@@ -1,4 +1,4 @@
-// src/App.jsx
+ // src/App.jsx
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   Award, ChevronDown, Mail, Phone, MapPin, Github, Linkedin,
@@ -429,7 +429,7 @@ function TypingText({ texts }) {
 function FloatingBadge({ children, delay = 0, theme }) {
   return (
     <motion.span
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-sm border transition-colors duration-500"
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium backdrop-blur-sm border transition-colors duration-500"
       style={{
         background: theme.cardBg,
         borderColor: theme.cardBorder,
@@ -468,17 +468,17 @@ function SkillCard({ skill, index, theme }) {
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-3 gap-2">
           <div>
-            <h3 className="font-bold text-sm sm:text-base transition-colors duration-500" style={{ color: theme.text }}>{skill.name}</h3>
-            <p className="text-xs mt-0.5 transition-colors duration-500" style={{ color: theme.textSecondary }}>{skill.description}</p>
+            <h3 className="font-bold text-base sm:text-lg transition-colors duration-500" style={{ color: theme.text }}>{skill.name}</h3>
+            <p className="text-sm mt-0.5 transition-colors duration-500" style={{ color: theme.textSecondary }}>{skill.description}</p>
           </div>
           <span
-            className="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border"
+            className="flex-shrink-0 text-sm font-bold px-2 py-0.5 rounded-full border"
             style={{ color: skill.color, borderColor: skill.color + "60", background: skill.color + "15" }}
           >
             {skill.proficiency}
           </span>
         </div>
-        <div className="text-xs mb-1" style={{ color: skill.color + "bb" }}>{skill.percent}%</div>
+        <div className="text-sm mb-1" style={{ color: skill.color + "bb" }}>{skill.percent}%</div>
         <div className="w-full rounded-full h-1.5 overflow-hidden" style={{ background: theme.inputBorder }}>
           <motion.div
             className="h-full rounded-full"
@@ -509,7 +509,7 @@ function SectionShell({ id, title, subtitle, children, noPad, theme }) {
             viewport={{ once: true }}
           >
             <motion.div
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-4 backdrop-blur-sm border transition-colors duration-500"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-4 backdrop-blur-sm border transition-colors duration-500"
               style={{
                 background: theme.sectionPillBg,
                 borderColor: theme.sectionPillBorder,
@@ -522,13 +522,13 @@ function SectionShell({ id, title, subtitle, children, noPad, theme }) {
               <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
               {id.toUpperCase()}
             </motion.div>
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight">
+            <h2 className="text-4xl sm:text-6xl font-black tracking-tight">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400">
                 {title}
               </span>
             </h2>
             {subtitle && (
-              <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base transition-colors duration-500" style={{ color: theme.textSecondary }}>
+              <p className="mt-4 max-w-2xl mx-auto text-base sm:text-lg transition-colors duration-500" style={{ color: theme.textSecondary }}>
                 {subtitle}
               </p>
             )}
@@ -547,19 +547,19 @@ function ArchitectureBlock({ steps, theme }) {
   return (
     <div className="rounded-xl p-4 border transition-colors duration-500"
       style={{ background: theme.inputBg, borderColor: theme.cardBorder }}>
-      <div className="text-xs font-bold mb-3 flex items-center gap-2 transition-colors duration-500" style={{ color: theme.textMuted }}>
+      <div className="text-sm font-bold mb-3 flex items-center gap-2 transition-colors duration-500" style={{ color: theme.textMuted }}>
         <GitBranch size={13} className="text-cyan-400" /> ARCHITECTURE FLOW
       </div>
       <div className="flex flex-col gap-1">
         {steps.map((step, i) => (
           <div key={i} className="flex items-center gap-2">
             <div
-              className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+              className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold text-white"
               style={{ background: `hsl(${200 + i * 40}, 70%, 50%)` }}
             >
               {i + 1}
             </div>
-            <div className="flex-1 rounded-lg px-3 py-1.5 text-xs border transition-colors duration-500"
+            <div className="flex-1 rounded-lg px-3 py-1.5 text-sm border transition-colors duration-500"
               style={{ background: theme.cardBg, borderColor: theme.cardBorder, color: theme.text }}>
               {step}
             </div>
@@ -601,10 +601,10 @@ function StatCounter({ value, label, icon, color, theme }) {
 
   return (
     <div ref={ref} className="text-center">
-      <div className="text-3xl sm:text-4xl font-black" style={{ color }}>
+      <div className="text-4xl sm:text-5xl font-black" style={{ color }}>
         {count}{value.includes("+") ? "+" : ""}
       </div>
-      <div className="text-xs mt-1 flex items-center justify-center gap-1 transition-colors duration-500" style={{ color: theme.textMuted }}>
+      <div className="text-sm mt-1 flex items-center justify-center gap-1 transition-colors duration-500" style={{ color: theme.textMuted }}>
         {icon} {label}
       </div>
     </div>
@@ -724,7 +724,7 @@ export default function App() {
               <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)" }}>
                 <Database size={16} className="text-white" />
               </div>
-              <span className="font-black text-lg tracking-tight" style={{ color: theme.text }}>
+              <span className="font-black text-xl tracking-tight" style={{ color: theme.text }}>
                 Parth<span className="text-violet-400">.</span>
               </span>
             </motion.div>
@@ -734,7 +734,7 @@ export default function App() {
                 <motion.button
                   key={s}
                   onClick={() => scrollTo(s)}
-                  className="capitalize px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+                  className="capitalize px-3 py-1.5 rounded-lg text-base font-medium transition-all"
                   style={{
                     color: activeSection === s ? "#ffffff" : theme.textSecondary,
                     background: activeSection === s ? "rgba(139,92,246,0.25)" : "transparent",
@@ -756,7 +756,7 @@ export default function App() {
                 href="/Data_and_AI_Resume.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden md:inline-flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg border transition-all"
+                className="hidden md:inline-flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-lg border transition-all"
                 style={{ borderColor: "rgba(139,92,246,0.5)", color: isDark ? "#c4b5fd" : "#7c3aed" }}
                 whileHover={{ scale: 1.05, background: "rgba(139,92,246,0.15)" }}
               >
@@ -794,7 +794,7 @@ export default function App() {
               style={{ background: theme.bg, borderColor: theme.cardBorder }}
             >
               <div className="flex justify-between items-center mb-8">
-                <span className="font-black text-lg" style={{ color: theme.text }}>Parth<span className="text-violet-400">.</span></span>
+                <span className="font-black text-xl" style={{ color: theme.text }}>Parth<span className="text-violet-400">.</span></span>
                 <div className="flex items-center gap-2">
                   <ThemeToggle isDark={isDark} onToggle={() => setIsDark(d => !d)} />
                   <button onClick={() => setMobileOpen(false)} className="p-2 rounded-lg" style={{ background: theme.cardBg, color: theme.text }}>
@@ -821,7 +821,7 @@ export default function App() {
               </nav>
               <div className="mt-auto">
                 <a href="/My_Latest_Data_Engineering.pdf" target="_blank" rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 border py-3 rounded-xl font-bold text-sm transition-colors"
+                  className="w-full flex items-center justify-center gap-2 border py-3 rounded-xl font-bold text-base transition-colors"
                   style={{ borderColor: "rgba(139,92,246,0.5)", color: isDark ? "#c4b5fd" : "#7c3aed" }}>
                   View Resume <ArrowUpRight size={14} />
                 </a>
@@ -872,12 +872,12 @@ export default function App() {
             className="flex items-center justify-center gap-2 mb-4"
           >
             <span className="h-px w-12 bg-gradient-to-r from-transparent to-violet-500" />
-            <span className="text-xs font-bold text-violet-400 tracking-widest uppercase">Available for Hire</span>
+            <span className="text-sm font-bold text-violet-400 tracking-widest uppercase">Available for Hire</span>
             <span className="h-px w-12 bg-gradient-to-l from-transparent to-violet-500" />
           </motion.div>
 
           <motion.h1
-            className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-none glow-text"
+            className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tighter leading-none glow-text"
             style={{ color: theme.text }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -887,7 +887,7 @@ export default function App() {
           </motion.h1>
 
           <motion.div
-            className="mt-3 text-lg sm:text-2xl md:text-3xl font-bold h-10 flex items-center justify-center"
+            className="mt-3 text-xl sm:text-3xl md:text-4xl font-bold h-10 flex items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.35 }}
@@ -901,7 +901,7 @@ export default function App() {
           </motion.div>
 
           <motion.p
-            className="mt-5 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed transition-colors duration-500"
+            className="mt-5 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed transition-colors duration-500"
             style={{ color: theme.textSecondary }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -927,8 +927,8 @@ export default function App() {
                 <div className={`w-9 h-9 rounded-xl mb-3 flex items-center justify-center bg-gradient-to-br ${p.color} bg-opacity-20`}>
                   {p.icon}
                 </div>
-                <div className="text-xs mb-0.5 transition-colors duration-500" style={{ color: theme.textMuted }}>{p.label}</div>
-                <div className="text-sm font-bold transition-colors duration-500" style={{ color: theme.text }}>{p.value}</div>
+                <div className="text-sm mb-0.5 transition-colors duration-500" style={{ color: theme.textMuted }}>{p.label}</div>
+                <div className="text-base font-bold transition-colors duration-500" style={{ color: theme.text }}>{p.value}</div>
               </motion.div>
             ))}
           </motion.div>
@@ -956,7 +956,7 @@ export default function App() {
           >
             <motion.button
               onClick={() => scrollTo("projects")}
-              className="w-full sm:w-auto relative overflow-hidden group px-7 py-3 rounded-xl font-bold text-sm text-white"
+              className="w-full sm:w-auto relative overflow-hidden group px-7 py-3 rounded-xl font-bold text-base text-white"
               style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)" }}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.97 }}
@@ -969,7 +969,7 @@ export default function App() {
               href="/My_Latest_Data_Engineering.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto px-7 py-3 rounded-xl font-bold text-sm border inline-flex items-center justify-center gap-2 transition-all"
+              className="w-full sm:w-auto px-7 py-3 rounded-xl font-bold text-base border inline-flex items-center justify-center gap-2 transition-all"
               style={{ borderColor: theme.cardBorder, color: theme.textSecondary }}
               whileHover={{ scale: 1.04, borderColor: "rgba(139,92,246,0.5)", color: isDark ? "#fff" : "#3b0764" }}
             >
@@ -984,7 +984,7 @@ export default function App() {
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <span className="text-xs tracking-widest uppercase transition-colors duration-500" style={{ color: theme.textMuted }}>Scroll</span>
+          <span className="text-sm tracking-widest uppercase transition-colors duration-500" style={{ color: theme.textMuted }}>Scroll</span>
           <ChevronDown size={18} style={{ color: theme.textMuted }} />
         </motion.div>
       </section>
@@ -1010,10 +1010,10 @@ export default function App() {
             <motion.div variants={cardFade("up")}
               className={`${cardClass} rounded-2xl p-6 card-hover ${!isDark ? "day-card-shadow" : ""}`}
               style={cardStyle}>
-              <h3 className="font-bold text-base mb-3 flex items-center gap-2 text-cyan-400">
+              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-cyan-400">
                 <Target size={16} /> Professional Summary
               </h3>
-              <p className="text-sm leading-relaxed transition-colors duration-500" style={{ color: theme.textSecondary }}>
+              <p className="text-base leading-relaxed transition-colors duration-500" style={{ color: theme.textSecondary }}>
                 Data Engineer with hands-on experience designing scalable pipelines using PySpark, Databricks, Azure, Snowflake, and dbt.
                 I'm extending that into ML — building feature pipelines, experiment tracking with MLflow, and exploring GenAI integrations.
                 I focus on clean data layers, schema enforcement, and analytics-ready outputs.
@@ -1022,16 +1022,16 @@ export default function App() {
             <motion.div variants={cardFade("up", 0.07)}
               className={`${cardClass} rounded-2xl p-6 card-hover ${!isDark ? "day-card-shadow" : ""}`}
               style={cardStyle}>
-              <h3 className="font-bold text-base mb-3 flex items-center gap-2 text-green-400">
+              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-green-400">
                 <BookOpen size={16} /> Education
               </h3>
-              <p className="font-bold text-sm transition-colors duration-500" style={{ color: theme.text }}>
+              <p className="font-bold text-base transition-colors duration-500" style={{ color: theme.text }}>
                 Bachelor of Technology — Computer Science Engineering
               </p>
-              <p className="text-sm transition-colors duration-500" style={{ color: theme.textSecondary }}>
+              <p className="text-base transition-colors duration-500" style={{ color: theme.textSecondary }}>
                 University of Petroleum and Energy Studies (UPES)
               </p>
-              <p className="text-violet-400 text-sm mt-1 font-semibold">Specialization: Cloud Computing and DevOps</p>
+              <p className="text-violet-400 text-base mt-1 font-semibold">Specialization: Cloud Computing and DevOps</p>
             </motion.div>
           </motion.div>
 
@@ -1044,7 +1044,7 @@ export default function App() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h3 className="font-bold text-base mb-5 flex items-center gap-2 text-pink-400">
+            <h3 className="font-bold text-lg mb-5 flex items-center gap-2 text-pink-400">
               <TrendingUp size={16} /> My Journey
             </h3>
             <div className="relative">
@@ -1067,10 +1067,10 @@ export default function App() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-black" style={{ color: item.color }}>{item.year}</span>
-                        <span className="text-xs font-bold transition-colors duration-500" style={{ color: theme.text }}>{item.title}</span>
+                        <span className="text-sm font-black" style={{ color: item.color }}>{item.year}</span>
+                        <span className="text-sm font-bold transition-colors duration-500" style={{ color: theme.text }}>{item.title}</span>
                       </div>
-                      <p className="text-xs mt-0.5 transition-colors duration-500" style={{ color: theme.textSecondary }}>{item.desc}</p>
+                      <p className="text-sm mt-0.5 transition-colors duration-500" style={{ color: theme.textSecondary }}>{item.desc}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -1088,14 +1088,14 @@ export default function App() {
             style={cardStyle}
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           >
-            <h3 className="text-base font-bold text-cyan-400 mb-4 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-cyan-400 mb-4 flex items-center gap-2">
               <CheckCircle2 size={16} /> Core Strengths
             </h3>
             <div className="space-y-3">
               {WHAT_I_BRING.map((x, i) => (
                 <motion.div
                   key={i}
-                  className="flex gap-3 text-sm transition-colors duration-500"
+                  className="flex gap-3 text-base transition-colors duration-500"
                   style={{ color: theme.textSecondary }}
                   initial={{ opacity: 0, x: -10 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -1111,14 +1111,14 @@ export default function App() {
 
           <motion.div className="space-y-4" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
             <div className={`${cardClass} rounded-2xl p-6 card-hover ${!isDark ? "day-card-shadow" : ""}`} style={cardStyle}>
-              <h3 className="text-base font-bold text-violet-400 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-bold text-violet-400 mb-4 flex items-center gap-2">
                 <Briefcase size={16} /> Roles I'm Targeting
               </h3>
               <div className="flex flex-wrap gap-2">
                 {["Data and AI Engineer", "Data and AI Architect", "AI Platform Engineer", "AI Infrastructure Engineer"].map((r, i) => (
                   <motion.span
                     key={r}
-                    className="px-3 py-1.5 rounded-full text-xs font-bold border transition-colors duration-500"
+                    className="px-3 py-1.5 rounded-full text-sm font-bold border transition-colors duration-500"
                     style={{
                       borderColor: `hsl(${200 + i * 35}, 70%, 50%)40`,
                       color: `hsl(${200 + i * 35}, 80%, ${isDark ? 70 : 45}%)`,
@@ -1139,14 +1139,14 @@ export default function App() {
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, #ec4899, #8b5cf6)" }}>
                   <Sparkles size={15} className="text-white" />
                 </div>
-                <h3 className="text-sm font-bold text-pink-400">Currently Exploring</h3>
+                <h3 className="text-base font-bold text-pink-400">Currently Exploring</h3>
               </div>
-              <p className="text-xs leading-relaxed transition-colors duration-500" style={{ color: theme.textSecondary }}>
+              <p className="text-sm leading-relaxed transition-colors duration-500" style={{ color: theme.textSecondary }}>
                 RAG pipelines with Azure OpenAI, LLM-powered data quality checks, and integrating GenAI into ETL workflows for smarter transformations.
               </p>
               <div className="mt-3 flex gap-2 flex-wrap">
                 {["RAG", "Azure OpenAI", "LangChain", "Vector DBs"].map(t => (
-                  <span key={t} className="text-[10px] border text-pink-400 px-2 py-0.5 rounded-full font-medium"
+                  <span key={t} className="text-sm border text-pink-400 px-2 py-0.5 rounded-full font-medium"
                     style={{ background: "rgba(236,72,153,0.08)", borderColor: "rgba(236,72,153,0.3)" }}>{t}</span>
                 ))}
               </div>
@@ -1162,7 +1162,7 @@ export default function App() {
             <motion.button
               key={cat.id}
               onClick={() => setSkillFilter(cat.id)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all border"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all border"
               style={
                 skillFilter === cat.id
                   ? { background: "linear-gradient(135deg, rgba(139,92,246,0.5), rgba(6,182,212,0.25))", color: "#fff", borderColor: "rgba(139,92,246,0.5)" }
@@ -1211,10 +1211,10 @@ export default function App() {
               <div className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center" style={{ background: `${block.color}20`, color: block.color }}>
                 {block.icon}
               </div>
-              <h3 className="text-sm font-black mb-3" style={{ color: block.color }}>{block.title}</h3>
+              <h3 className="text-base font-black mb-3" style={{ color: block.color }}>{block.title}</h3>
               <div className="flex flex-wrap gap-1.5 justify-center">
                 {block.items.map(item => (
-                  <span key={item} className="border rounded-full text-[11px] font-medium px-2 py-0.5 transition-colors duration-500"
+                  <span key={item} className="border rounded-full text-sm font-medium px-2 py-0.5 transition-colors duration-500"
                     style={{ background: theme.inputBg, borderColor: theme.cardBorder, color: theme.textSecondary }}>{item}</span>
                 ))}
               </div>
@@ -1241,24 +1241,24 @@ export default function App() {
               <div className="flex flex-col lg:flex-row lg:items-start gap-4 mb-6">
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <span className={`text-[11px] font-black px-3 py-1 rounded-full bg-gradient-to-r ${p.tagColor} text-white`}>
+                    <span className={`text-sm font-black px-3 py-1 rounded-full bg-gradient-to-r ${p.tagColor} text-white`}>
                       {p.tag}
                     </span>
-                    <span className="text-xs flex items-center gap-1 transition-colors duration-500" style={{ color: theme.textMuted }}>
+                    <span className="text-sm flex items-center gap-1 transition-colors duration-500" style={{ color: theme.textMuted }}>
                       <Calendar size={11} /> {p.duration}
                     </span>
-                    <span className="text-xs flex items-center gap-1 transition-colors duration-500" style={{ color: theme.textMuted }}>
+                    <span className="text-sm flex items-center gap-1 transition-colors duration-500" style={{ color: theme.textMuted }}>
                       <Users size={11} /> {p.client}
                     </span>
                   </div>
-                  <h3 className="text-lg sm:text-2xl font-black leading-tight transition-colors duration-500" style={{ color: theme.text }}>{p.title}</h3>
-                  <p className="text-sm mt-1 transition-colors duration-500" style={{ color: theme.textSecondary }}>{p.subtitle}</p>
+                  <h3 className="text-xl sm:text-3xl font-black leading-tight transition-colors duration-500" style={{ color: theme.text }}>{p.title}</h3>
+                  <p className="text-base mt-1 transition-colors duration-500" style={{ color: theme.textSecondary }}>{p.subtitle}</p>
                 </div>
                 <motion.a
                   href={p.repo}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border transition-all"
+                  className="flex-shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-all"
                   style={{ background: theme.inputBg, borderColor: theme.cardBorder, color: theme.textSecondary }}
                   whileHover={{ scale: 1.05, borderColor: "rgba(139,92,246,0.5)", color: "#c4b5fd" }}
                 >
@@ -1270,13 +1270,13 @@ export default function App() {
                 <div className="space-y-4">
                   <div className="rounded-xl p-4 border transition-colors duration-500"
                     style={{ background: theme.inputBg, borderColor: theme.cardBorder }}>
-                    <div className="text-xs font-bold text-red-400 mb-2 flex items-center gap-1.5"><Target size={11} /> PROBLEM</div>
-                    <p className="text-xs leading-relaxed transition-colors duration-500" style={{ color: theme.textSecondary }}>{p.problem}</p>
+                    <div className="text-sm font-bold text-red-400 mb-2 flex items-center gap-1.5"><Target size={11} /> PROBLEM</div>
+                    <p className="text-sm leading-relaxed transition-colors duration-500" style={{ color: theme.textSecondary }}>{p.problem}</p>
                   </div>
                   <div className="rounded-xl p-4 border transition-colors duration-500"
                     style={{ background: theme.inputBg, borderColor: theme.cardBorder }}>
-                    <div className="text-xs font-bold text-cyan-400 mb-2 flex items-center gap-1.5"><Zap size={11} /> OBJECTIVE</div>
-                    <p className="text-xs leading-relaxed transition-colors duration-500" style={{ color: theme.textSecondary }}>{p.objective}</p>
+                    <div className="text-sm font-bold text-cyan-400 mb-2 flex items-center gap-1.5"><Zap size={11} /> OBJECTIVE</div>
+                    <p className="text-sm leading-relaxed transition-colors duration-500" style={{ color: theme.textSecondary }}>{p.objective}</p>
                   </div>
                   <ArchitectureBlock steps={p.architecture} theme={theme} />
                 </div>
@@ -1284,10 +1284,10 @@ export default function App() {
                 <div className="space-y-4">
                   <div className="rounded-xl p-4 border transition-colors duration-500"
                     style={{ background: theme.inputBg, borderColor: theme.cardBorder }}>
-                    <div className="text-xs font-bold text-violet-400 mb-3 flex items-center gap-1.5"><Code2 size={11} /> WHAT I BUILT</div>
+                    <div className="text-sm font-bold text-violet-400 mb-3 flex items-center gap-1.5"><Code2 size={11} /> WHAT I BUILT</div>
                     <div className="space-y-2">
                       {p.approach.map((x, idx) => (
-                        <div key={idx} className="flex gap-2.5 text-xs transition-colors duration-500" style={{ color: theme.textSecondary }}>
+                        <div key={idx} className="flex gap-2.5 text-sm transition-colors duration-500" style={{ color: theme.textSecondary }}>
                           <span className="flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full bg-violet-400" />
                           {x}
                         </div>
@@ -1296,10 +1296,10 @@ export default function App() {
                   </div>
                   <div className="rounded-xl p-4 border transition-colors duration-500"
                     style={{ background: theme.inputBg, borderColor: theme.cardBorder }}>
-                    <div className="text-xs font-bold text-green-400 mb-3 flex items-center gap-1.5"><CheckCircle2 size={11} /> IMPACT</div>
+                    <div className="text-sm font-bold text-green-400 mb-3 flex items-center gap-1.5"><CheckCircle2 size={11} /> IMPACT</div>
                     <div className="space-y-2">
                       {p.impact.map((x, idx) => (
-                        <div key={idx} className="flex gap-2.5 text-xs transition-colors duration-500" style={{ color: theme.textSecondary }}>
+                        <div key={idx} className="flex gap-2.5 text-sm transition-colors duration-500" style={{ color: theme.textSecondary }}>
                           <CheckCircle2 size={13} className="flex-shrink-0 text-green-400 mt-0.5" />
                           {x}
                         </div>
@@ -1307,10 +1307,10 @@ export default function App() {
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs font-bold mb-2 transition-colors duration-500" style={{ color: theme.textMuted }}>TECH STACK</div>
+                    <div className="text-sm font-bold mb-2 transition-colors duration-500" style={{ color: theme.textMuted }}>TECH STACK</div>
                     <div className="flex flex-wrap gap-1.5">
                       {p.tech.map(t => (
-                        <span key={t} className="text-[11px] border rounded-lg font-medium px-2.5 py-1 transition-colors duration-500"
+                        <span key={t} className="text-sm border rounded-lg font-medium px-2.5 py-1 transition-colors duration-500"
                           style={{ background: theme.cardBg, borderColor: theme.cardBorder, color: theme.textSecondary }}>{t}</span>
                       ))}
                     </div>
@@ -1349,8 +1349,8 @@ export default function App() {
                 {cert.icon}
               </div>
               <div>
-                <div className="text-sm font-black transition-colors duration-500" style={{ color: theme.text }}>{cert.title}</div>
-                <div className="text-xs transition-colors duration-500" style={{ color: theme.textSecondary }}>{cert.sub}</div>
+                <div className="text-base font-black transition-colors duration-500" style={{ color: theme.text }}>{cert.title}</div>
+                <div className="text-sm transition-colors duration-500" style={{ color: theme.textSecondary }}>{cert.sub}</div>
               </div>
               <ArrowUpRight size={16} className="ml-auto transition-colors group-hover:text-violet-400" style={{ color: theme.textMuted }} />
             </motion.a>
@@ -1359,7 +1359,7 @@ export default function App() {
       </SectionShell>
 
       {/* ===== CONTACT ===== */}
-      <SectionShell id="contact" title="Let's Connect" subtitle="Open to data engineering and ML engineering roles. Let's build something great together." theme={theme}>
+      <SectionShell id="contact" title="Let's Connect" subtitle="Open to data engineering and AI/ML engineering roles. Let's build something great together." theme={theme}>
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -1367,7 +1367,7 @@ export default function App() {
             viewport={{ once: true }}
             className="space-y-4"
           >
-            <p className="text-sm leading-relaxed transition-colors duration-500" style={{ color: theme.textSecondary }}>
+            <p className="text-base leading-relaxed transition-colors duration-500" style={{ color: theme.textSecondary }}>
               I'm actively seeking roles where I can apply cloud-native data engineering, ML pipeline design, and my growing GenAI skills. If you're building a modern data team — let's talk.
             </p>
             {[
@@ -1392,9 +1392,9 @@ export default function App() {
                 </div>
                 {item.href ? (
                   <a href={item.href} target="_blank" rel="noopener noreferrer"
-                    className="text-sm transition-colors hover:text-violet-400" style={{ color: theme.textSecondary }}>{item.label}</a>
+                    className="text-base transition-colors hover:text-violet-400" style={{ color: theme.textSecondary }}>{item.label}</a>
                 ) : (
-                  <span className="text-sm transition-colors duration-500" style={{ color: theme.textSecondary }}>{item.label}</span>
+                  <span className="text-base transition-colors duration-500" style={{ color: theme.textSecondary }}>{item.label}</span>
                 )}
               </motion.div>
             ))}
@@ -1415,11 +1415,11 @@ export default function App() {
               { id: "email", label: "Email", type: "email", placeholder: "you@example.com" },
             ].map(field => (
               <div key={field.id}>
-                <label htmlFor={field.id} className="text-xs font-bold mb-1.5 block uppercase tracking-wider transition-colors duration-500" style={{ color: theme.textMuted }}>{field.label}</label>
+                <label htmlFor={field.id} className="text-sm font-bold mb-1.5 block uppercase tracking-wider transition-colors duration-500" style={{ color: theme.textMuted }}>{field.label}</label>
                 <input
                   type={field.type} name={field.id} id={field.id} required
                   placeholder={field.placeholder}
-                  className="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all border"
+                  className="w-full px-4 py-2.5 rounded-xl text-base focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all border"
                   style={{
                     background: theme.inputBg,
                     borderColor: theme.inputBorder,
@@ -1429,11 +1429,11 @@ export default function App() {
               </div>
             ))}
             <div>
-              <label htmlFor="message" className="text-xs font-bold mb-1.5 block uppercase tracking-wider transition-colors duration-500" style={{ color: theme.textMuted }}>Message</label>
+              <label htmlFor="message" className="text-sm font-bold mb-1.5 block uppercase tracking-wider transition-colors duration-500" style={{ color: theme.textMuted }}>Message</label>
               <textarea
                 name="message" id="message" rows={4} required
                 placeholder="Tell me about the role or project..."
-                className="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all resize-none border"
+                className="w-full px-4 py-2.5 rounded-xl text-base focus:outline-none focus:ring-1 focus:ring-violet-500/30 transition-all resize-none border"
                 style={{
                   background: theme.inputBg,
                   borderColor: theme.inputBorder,
@@ -1443,14 +1443,14 @@ export default function App() {
             </div>
             <motion.button
               type="submit"
-              className="w-full py-3 rounded-xl font-black text-sm text-white relative overflow-hidden"
+              className="w-full py-3 rounded-xl font-black text-base text-white relative overflow-hidden"
               style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)" }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
               Send Message
             </motion.button>
-            <p className="text-xs text-center transition-colors duration-500" style={{ color: theme.textMuted }}>Tip: Mention the role name — I'll respond faster.</p>
+            <p className="text-sm text-center transition-colors duration-500" style={{ color: theme.textMuted }}>Tip: Mention the role name — I'll respond faster.</p>
           </motion.form>
         </div>
       </SectionShell>
@@ -1462,9 +1462,9 @@ export default function App() {
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, #8b5cf6, #06b6d4)" }}>
               <Database size={13} className="text-white" />
             </div>
-            <span className="text-sm font-black" style={{ color: theme.text }}>Parth<span className="text-violet-400">.</span></span>
+            <span className="text-base font-black" style={{ color: theme.text }}>Parth<span className="text-violet-400">.</span></span>
           </div>
-          <p className="text-xs transition-colors duration-500" style={{ color: theme.textMuted }}>© 2026 Parth · Data Engineer · ML + GenAI Explorer</p>
+          <p className="text-sm transition-colors duration-500" style={{ color: theme.textMuted }}>© 2026 Parth · Data & AI Engineer · ML + GenAI Explorer</p>
           <div className="flex items-center gap-3">
             <a href="https://github.com/parthhhhh12" target="_blank" rel="noopener noreferrer"
               className="transition-colors hover:text-white" style={{ color: theme.textMuted }}><Github size={16} /></a>
