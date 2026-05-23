@@ -894,8 +894,7 @@ export default function App() {
           >
             <TypingText texts={[
               "Data and AI Engineer",
-              "MLOps Practitioner",
-              "Generative AI Explorer",
+              "AI/ML Explorer",
               "Pipeline Builder",
             ]} />
           </motion.div>
