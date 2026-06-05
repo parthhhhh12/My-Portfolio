@@ -893,9 +893,9 @@ export default function App() {
             transition={{ delay: 0.35 }}
           >
             <TypingText texts={[
-              "Data and AI Engineer",
-              "AI/ML Explorer",
-              "Pipeline Builder",
+              "AI Data Engineer",
+              "AI/ML Practitioner",
+              "Pipeline Architect ",
             ]} />
           </motion.div>
 
@@ -1463,7 +1463,7 @@ export default function App() {
             </div>
             <span className="text-base font-black" style={{ color: theme.text }}>Parth<span className="text-violet-400">.</span></span>
           </div>
-          <p className="text-sm transition-colors duration-500" style={{ color: theme.textMuted }}>© 2026 Parth · Data & AI Engineer · ML + GenAI Explorer</p>
+          <p className="text-sm transition-colors duration-500" style={{ color: theme.textMuted }}>© 2026 Parth · AI Data Engineer · ML/MLOPS + AI Explorer</p>
           <div className="flex items-center gap-3">
             <a href="https://github.com/parthhhhh12" target="_blank" rel="noopener noreferrer"
               className="transition-colors hover:text-white" style={{ color: theme.textMuted }}><Github size={16} /></a>
