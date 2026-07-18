@@ -319,25 +319,39 @@ function ZoomText({ text, as: Tag = "span", className, style, radius = 130, maxS
   );
 }
 
-/* Left-aligned, naturally-wrapping word-zoom for paragraphs, bullets, and
-   captions — every section's body copy reacts to the cursor without breaking
-   normal text flow or hurting readability (smaller radius/scale than headings). */
-function ZoomWords({ text, as: Tag = "p", className, style, radius = 85, maxScale = 1.2 }) {
-  const words = text.split(" ");
+/* Cursor-reactive body text WITHOUT any scale/transform — this is what
+   replaced the old word-zoom-on-paragraphs approach, which scaled multiple
+   tightly-packed neighboring words at once and made them visually overlap.
+   Instead: a duplicate text layer in an accent color is masked to a soft
+   circle that follows the cursor, so nearby words brighten/"light up" but
+   never move, resize, or collide with their neighbors. */
+function GlowText({ text, as: Tag = "p", className, style, radius = 90, glowColor }) {
+  const theme = useTheme();
+  const ref = useRef(null);
+  const color = glowColor || theme.green;
+
+  const handleMove = (e) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    ref.current.style.setProperty("--tx", `${e.clientX - rect.left}px`);
+    ref.current.style.setProperty("--ty", `${e.clientY - rect.top}px`);
+  };
+  const reset = () => {
+    if (!ref.current) return;
+    ref.current.style.setProperty("--tx", "-999px");
+    ref.current.style.setProperty("--ty", "-999px");
+  };
+
   return (
-    <Tag className={className} style={style}>
-      {words.map((w, i) => (
-        <React.Fragment key={i}>
-          <span
-            className="zword"
-            data-zr={radius} data-zs={maxScale}
-            style={{ display: "inline-block", transition: "transform 0.15s cubic-bezier(0.2,0.8,0.2,1)", transformOrigin: "center", willChange: "transform" }}
-          >
-            {w}
-          </span>
-          {i < words.length - 1 ? " " : ""}
-        </React.Fragment>
-      ))}
+    <Tag
+      ref={ref}
+      onMouseMove={handleMove}
+      onMouseLeave={reset}
+      className={className}
+      style={{ ...style, position: "relative", display: "block", "--glow-radius": `${radius}px` }}
+    >
+      {text}
+      <span className="text-glow-overlay" aria-hidden="true" style={{ color }}>{text}</span>
     </Tag>
   );
 }
@@ -766,7 +780,7 @@ function SkillCard({ skill, index }) {
               {skill.name}
               {skill.current && <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: theme.green }} title="Currently in active use" />}
             </h3>
-            <ZoomWords as="p" text={skill.description} className="text-sm mt-0.5" style={{ color: theme.textSecondary }} radius={70} maxScale={1.15} />
+            <GlowText as="p" text={skill.description} className="text-sm mt-0.5" style={{ color: theme.textSecondary }} radius={70} glowColor={color} />
           </div>
           <span className="flex-shrink-0 text-[11px] font-mono font-bold px-2 py-0.5 rounded border uppercase" style={{ color, borderColor: color + "60", background: color + "12" }}>{skill.proficiency}</span>
         </div>
@@ -961,10 +975,16 @@ export default function App() {
             opacity: 0; transition: opacity 0.3s;
           }
           .spotlight-card:hover::before { opacity: 1; }
+          .text-glow-overlay {
+            position: absolute; inset: 0; pointer-events: none;
+            -webkit-mask-image: radial-gradient(var(--glow-radius, 90px) circle at var(--tx, -999px) var(--ty, -999px), black 0%, black 25%, transparent 70%);
+            mask-image: radial-gradient(var(--glow-radius, 90px) circle at var(--tx, -999px) var(--ty, -999px), black 0%, black 25%, transparent 70%);
+          }
           @media print {
             body { background: #fff !important; }
             nav, footer, .marquee-parent, [data-print-hide="true"] { display: none !important; }
             .zword { transform: none !important; }
+            .text-glow-overlay { display: none !important; }
             section { break-inside: avoid; page-break-inside: avoid; }
             * { box-shadow: none !important; text-shadow: none !important; animation: none !important; }
           }
@@ -1094,9 +1114,9 @@ export default function App() {
             </motion.div>
 
             <motion.p className="mt-4 max-w-2xl mx-auto" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
-              <ZoomWords
+              <GlowText
                 text="I build scalable data pipelines, ML-integrated workflows, and GenAI-powered solutions using cloud-native tools — from raw ingestion to model deployment, end to end."
-                as="span" className="text-base sm:text-lg leading-relaxed" style={{ color: theme.textSecondary }} radius={90} maxScale={1.25}
+                as="span" className="text-base sm:text-lg leading-relaxed" style={{ color: theme.textSecondary }} radius={100}
               />
             </motion.p>
 
@@ -1135,7 +1155,7 @@ export default function App() {
             {[...Array(2)].map((_, rep) => (
               <React.Fragment key={rep}>
                 {["AZURE", "DATABRICKS", "SNOWFLAKE", "DBT", "PYSPARK", "MLFLOW", "PYTHON", "SQL", "DELTA LAKE", "GENAI", "1M+ ROWS", "TERRAFORM"].map((t, i) => (
-                  <span key={t + rep + i} className="mx-4 flex items-center gap-4">{t} <span style={{ color: theme.green }}>//</span></span>
+                  <span key={t + rep + i} className="mx-4 flex items-center gap-4">{t} <span style={{ color: theme.green }}>{"//"}</span></span>
                 ))}
               </React.Fragment>
             ))}
@@ -1148,8 +1168,8 @@ export default function App() {
             <motion.div className="space-y-4" initial="hidden" whileInView="show" variants={containerStagger} viewport={{ once: true }}>
               <motion.div variants={cardFade("up")} onMouseMove={spotlight.onMouseMove} className="rounded-2xl p-6 border card-hover spotlight-card relative overflow-hidden" style={cardStyle}>
                 <h3 className="font-bold text-lg mb-3 flex items-center gap-2 font-mono relative z-10" style={{ color: theme.blue }}><Target size={16} /> profile.summary</h3>
-                <ZoomWords
-                  as="p" className="text-base leading-relaxed relative z-10" style={{ color: theme.textSecondary }}
+                <GlowText
+                  as="p" className="text-base leading-relaxed relative z-10" style={{ color: theme.textSecondary }} glowColor={theme.blue}
                   text="Data and AI Engineer with hands-on experience building scalable data pipelines and integrating machine learning and MLOps practices into data workflows. Currently a Data Engineer at Nagarro, working with Azure Synapse, Snowflake, and dbt. Skilled in the modern data stack and cloud platforms, with growing expertise in Generative AI and Agentic AI — RAG, Vector Databases, and AI Agents. I care about clean data layers, schema enforcement, and analytics-ready outputs."
                 />
               </motion.div>
@@ -1225,7 +1245,7 @@ export default function App() {
                         {job.bullets.map((b, idx) => (
                           <div key={idx} className="flex gap-2.5 text-sm" style={{ color: theme.textSecondary }}>
                             <span className="flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full" style={{ background: theme[job.key] }} />
-                            <ZoomWords as="span" text={b} radius={80} maxScale={1.18} />
+                            <GlowText as="span" text={b} radius={85} glowColor={theme[job.key]} />
                           </div>
                         ))}
                       </div>
@@ -1246,7 +1266,7 @@ export default function App() {
         <StageShell id="skills">
           <div className="mb-10">
             <div className="text-xs font-mono uppercase tracking-widest mb-4 flex items-center gap-2" style={{ color: theme.textMuted }}>
-              <span style={{ color: theme.green }}>//</span> primary instruments
+              <span style={{ color: theme.green }}>{"//"}</span> primary instruments
             </div>
             <motion.div className="flex flex-wrap gap-3 sm:gap-4" initial="hidden" whileInView="show" variants={containerStagger} viewport={{ once: true }}>
               {PRIMARY_INSTRUMENTS.map((t, i) => (
@@ -1313,7 +1333,7 @@ export default function App() {
                 <div className="relative z-10">
                   <div className="text-[11px] font-mono font-bold mb-2 tracking-widest" style={{ color: theme[c.key] }}>{c.code}</div>
                   <h3 className="text-base font-black mb-2" style={{ color: theme.text }}>{c.title}</h3>
-                  <ZoomWords as="p" text={c.desc} className="text-sm leading-relaxed" style={{ color: theme.textSecondary }} radius={80} maxScale={1.18} />
+                  <GlowText as="p" text={c.desc} className="text-sm leading-relaxed" style={{ color: theme.textSecondary }} radius={85} glowColor={theme[c.key]} />
                 </div>
                 <div className="absolute inset-x-0 bottom-0 h-0.5" style={{ background: `linear-gradient(90deg, transparent, ${theme[c.key]}, transparent)` }} />
               </motion.div>
@@ -1328,7 +1348,7 @@ export default function App() {
                   {WHAT_I_BRING.map((x, i) => (
                     <motion.div key={i} className="flex gap-3 text-base" style={{ color: theme.textSecondary }} initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }}>
                       <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: theme.green }} />
-                      <ZoomWords as="span" text={x} radius={80} maxScale={1.18} />
+                      <GlowText as="span" text={x} radius={85} glowColor={theme.green} />
                     </motion.div>
                   ))}
                 </div>
@@ -1356,8 +1376,8 @@ export default function App() {
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: theme.pink + "20", color: theme.pink }}><Sparkles size={15} /></div>
                   <h3 className="text-base font-bold font-mono" style={{ color: theme.pink }}>currently.exploring</h3>
                 </div>
-                <ZoomWords
-                  as="p" className="text-sm leading-relaxed" style={{ color: theme.textSecondary }} radius={80} maxScale={1.18}
+                <GlowText
+                  as="p" className="text-sm leading-relaxed" style={{ color: theme.textSecondary }} radius={85} glowColor={theme.pink}
                   text="RAG pipelines with Azure OpenAI, LLM-powered data quality checks, and integrating GenAI into ETL workflows for smarter transformations."
                 />
                 <div className="mt-3 flex gap-2 flex-wrap font-mono">
@@ -1396,11 +1416,11 @@ export default function App() {
                     <div className="space-y-4">
                       <div className="rounded-xl p-4 border" style={{ background: theme.inputBg, borderColor: theme.cardBorder }}>
                         <div className="text-xs font-bold mb-2 flex items-center gap-1.5 font-mono uppercase tracking-widest" style={{ color: theme.red }}><Target size={11} /> problem</div>
-                        <ZoomWords as="p" text={p.problem} className="text-sm leading-relaxed" style={{ color: theme.textSecondary }} radius={80} maxScale={1.16} />
+                        <GlowText as="p" text={p.problem} className="text-sm leading-relaxed" style={{ color: theme.textSecondary }} radius={85} glowColor={theme.red} />
                       </div>
                       <div className="rounded-xl p-4 border" style={{ background: theme.inputBg, borderColor: theme.cardBorder }}>
                         <div className="text-xs font-bold mb-2 flex items-center gap-1.5 font-mono uppercase tracking-widest" style={{ color: theme.blue }}><Zap size={11} /> objective</div>
-                        <ZoomWords as="p" text={p.objective} className="text-sm leading-relaxed" style={{ color: theme.textSecondary }} radius={80} maxScale={1.16} />
+                        <GlowText as="p" text={p.objective} className="text-sm leading-relaxed" style={{ color: theme.textSecondary }} radius={85} glowColor={theme.blue} />
                       </div>
                       <FlowBlock steps={p.architecture} />
                     </div>
@@ -1409,13 +1429,13 @@ export default function App() {
                       <div className="rounded-xl p-4 border" style={{ background: theme.inputBg, borderColor: theme.cardBorder }}>
                         <div className="text-xs font-bold mb-3 flex items-center gap-1.5 font-mono uppercase tracking-widest" style={{ color: theme.pink }}><Code2 size={11} /> what i built</div>
                         <div className="space-y-2">
-                          {p.approach.map((x, idx) => (<div key={idx} className="flex gap-2.5 text-sm" style={{ color: theme.textSecondary }}><span className="flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full" style={{ background: theme.pink }} /> <ZoomWords as="span" text={x} radius={75} maxScale={1.15} /></div>))}
+                          {p.approach.map((x, idx) => (<div key={idx} className="flex gap-2.5 text-sm" style={{ color: theme.textSecondary }}><span className="flex-shrink-0 mt-1.5 w-1.5 h-1.5 rounded-full" style={{ background: theme.pink }} /> <GlowText as="span" text={x} radius={80} glowColor={theme.pink} /></div>))}
                         </div>
                       </div>
                       <div className="rounded-xl p-4 border" style={{ background: theme.inputBg, borderColor: theme.cardBorder }}>
                         <div className="text-xs font-bold mb-3 flex items-center gap-1.5 font-mono uppercase tracking-widest" style={{ color: theme.green }}><CheckCircle2 size={11} /> impact</div>
                         <div className="space-y-2">
-                          {p.impact.map((x, idx) => (<div key={idx} className="flex gap-2.5 text-sm" style={{ color: theme.textSecondary }}><CheckCircle2 size={13} className="flex-shrink-0 mt-0.5" style={{ color: theme.green }} /> <ZoomWords as="span" text={x} radius={75} maxScale={1.15} /></div>))}
+                          {p.impact.map((x, idx) => (<div key={idx} className="flex gap-2.5 text-sm" style={{ color: theme.textSecondary }}><CheckCircle2 size={13} className="flex-shrink-0 mt-0.5" style={{ color: theme.green }} /> <GlowText as="span" text={x} radius={80} glowColor={theme.green} /></div>))}
                         </div>
                       </div>
                       <div>
@@ -1458,8 +1478,8 @@ export default function App() {
         <StageShell id="contact">
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="space-y-4">
-              <ZoomWords
-                as="p" className="text-base leading-relaxed" style={{ color: theme.textSecondary }} radius={85} maxScale={1.2}
+              <GlowText
+                as="p" className="text-base leading-relaxed" style={{ color: theme.textSecondary }} radius={100}
                 text="I'm currently building at Nagarro, and always open to interesting conversations around cloud-native data engineering, ML pipeline design, and GenAI. If you're building a modern data team — let's talk."
               />
               {[
