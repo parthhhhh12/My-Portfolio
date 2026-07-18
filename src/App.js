@@ -9,7 +9,7 @@ import {
   Brain, Zap, Sparkles, TrendingUp, Code2, ArrowRight, X, Search,
   Rocket, Cpu, ShieldCheck, Radio, Sun, Moon, Copy, Check,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
 /* ============================
    PIPELINE STAGE MAP
@@ -536,6 +536,88 @@ function CommandPalette({ open, onClose, onNavigate, onToggleTheme, isDark }) {
 }
 
 /* ============================
+   Interactive query terminal — a real typed-command shell over the
+   portfolio's own data. This is a functional feature, not decoration:
+   commands are parsed and answered from the same SKILLS/EXPERIENCE/PROJECTS
+   arrays that power the rest of the site.
+   ============================ */
+function InteractiveTerminal({ onToggleTheme }) {
+  const theme = useTheme();
+  const [history, setHistory] = useState([
+    { type: "output", text: "parth-shell v1.0 — type 'help' to see available commands." },
+  ]);
+  const [input, setInput] = useState("");
+  const scrollRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [history]);
+
+  const COMMANDS = useMemo(() => ({
+    help: () => "available: help, whoami, skills, experience, projects, certifications, contact, resume, theme, clear",
+    whoami: () => "Parth — AI Data Engineer @ Nagarro. Building pipelines, shipping ML, exploring GenAI.",
+    skills: () => SKILLS.slice(0, 8).map(s => `- ${s.name} (${s.proficiency})`).join("\n"),
+    experience: () => EXPERIENCE.map(e => `- ${e.role} @ ${e.company} [${e.period}]`).join("\n"),
+    projects: () => PROJECTS.map(p => `- ${p.title}`).join("\n"),
+    certifications: () => "- Databricks Certified Data Engineer Associate\n- Databricks Certified Generative AI Engineer Associate\n- HackerRank SQL Advanced",
+    contact: () => "email: parthsingh1253@gmail.com  |  github.com/parthhhhh12  |  linkedin.com/in/singh05e",
+    resume: () => { window.open("/Data_and_AI_Resume.pdf", "_blank"); return "opening resume.pdf ..."; },
+    theme: () => { onToggleTheme(); return "theme switched."; },
+  }), [onToggleTheme]);
+
+  const runCommand = (raw) => {
+    const cmd = raw.trim().toLowerCase();
+    if (!cmd) return;
+    setHistory((h) => [...h, { type: "input", text: raw }]);
+    if (cmd === "clear") { setHistory([]); return; }
+    const handler = COMMANDS[cmd];
+    const output = handler ? handler() : `command not found: ${cmd} — type 'help'`;
+    setHistory((h) => [...h, { type: "output", text: output }]);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") { runCommand(input); setInput(""); }
+  };
+
+  return (
+    <div
+      className="rounded-xl border overflow-hidden font-mono text-left cursor-text"
+      style={{ background: theme.mode === "night" ? "rgba(5,9,8,0.85)" : "rgba(255,255,255,0.7)", borderColor: theme.cardBorder }}
+      onClick={() => inputRef.current?.focus()}
+    >
+      <div className="flex items-center gap-1.5 px-4 py-2.5 border-b" style={{ borderColor: theme.cardBorder, background: "rgba(120,120,120,0.04)" }}>
+        <span className="w-2.5 h-2.5 rounded-full" style={{ background: theme.red }} />
+        <span className="w-2.5 h-2.5 rounded-full" style={{ background: theme.amber }} />
+        <span className="w-2.5 h-2.5 rounded-full" style={{ background: theme.green }} />
+        <span className="ml-3 text-xs" style={{ color: theme.textMuted }}>parth-shell — try 'whoami' or 'skills'</span>
+      </div>
+      <div ref={scrollRef} className="px-4 py-4 text-xs sm:text-sm h-52 overflow-y-auto">
+        {history.map((h, i) => (
+          <div key={i} className="mb-1.5 whitespace-pre-wrap" style={{ color: h.type === "input" ? theme.green : theme.textSecondary }}>
+            {h.type === "input" ? `$ ${h.text}` : h.text}
+          </div>
+        ))}
+        <div className="flex items-center gap-2">
+          <span style={{ color: theme.green }}>$</span>
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="flex-1 bg-transparent outline-none min-w-0"
+            style={{ color: theme.text }}
+            placeholder="type a command..."
+            spellCheck={false}
+            autoComplete="off"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================
    Theme toggle
    ============================ */
 function ThemeToggle({ isDark, onToggle }) {
@@ -653,8 +735,65 @@ function PipelineConsole() {
 }
 
 /* ============================
-   Data flow background (canvas)
+   Live architecture diagram — Source -> Ingest -> Transform -> Warehouse -> Serve
+   This is the one visual that immediately says "data engineer" rather than
+   "generic developer" — animated flow particles travel each connector on loop.
    ============================ */
+const ARCHITECTURE_FLOW = [
+  { label: "Sources", icon: <Layers size={18} />, key: "textMuted" },
+  { label: "Ingest", icon: <Cloud size={18} />, key: "blue" },
+  { label: "Transform", icon: <Workflow size={18} />, key: "pink" },
+  { label: "Warehouse", icon: <Database size={18} />, key: "green" },
+  { label: "Serve", icon: <Sparkles size={18} />, key: "amber" },
+];
+
+function FlowNode({ icon, label, color }) {
+  const theme = useTheme();
+  return (
+    <motion.div className="flex flex-col items-center gap-1.5 flex-shrink-0" whileHover={{ scale: 1.1 }}>
+      <div
+        className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center border"
+        style={{ background: color + "18", borderColor: color + "45", color }}
+      >
+        {icon}
+      </div>
+      <span className="text-[9px] sm:text-xs font-mono uppercase tracking-wider text-center" style={{ color: theme.textMuted }}>{label}</span>
+    </motion.div>
+  );
+}
+
+function FlowConnector({ color }) {
+  return (
+    <div className="relative flex-1 h-px mx-1 sm:mx-2 min-w-[16px] rounded-full" style={{ background: color + "30" }}>
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i}
+          className="absolute top-1/2 w-1.5 h-1.5 rounded-full"
+          style={{ background: color, boxShadow: `0 0 6px ${color}`, marginTop: "-3px" }}
+          animate={{ left: ["0%", "100%"], opacity: [0, 1, 1, 0] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: "linear", delay: i * 0.8 }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ArchitectureDiagram() {
+  const theme = useTheme();
+  return (
+    <div className="w-full max-w-2xl mx-auto flex items-center justify-between px-1">
+      {ARCHITECTURE_FLOW.map((s, i) => {
+        const color = s.key === "textMuted" ? theme.textMuted : theme[s.key];
+        return (
+          <React.Fragment key={s.label}>
+            <FlowNode icon={s.icon} label={s.label} color={color} />
+            {i < ARCHITECTURE_FLOW.length - 1 && <FlowConnector color={color} />}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
 function DataFlowField({ isDark }) {
   const canvasRef = useRef(null);
   useEffect(() => {
@@ -953,6 +1092,9 @@ export default function App() {
   const filteredSkills = skillFilter === "all" ? SKILLS : SKILLS.filter(s => s.category === skillFilter);
   const cardStyle = { background: theme.cardBg, borderColor: theme.cardBorder };
   const spotlight = useSpotlight();
+  const { scrollY } = useScroll();
+  const blobY1 = useTransform(scrollY, [0, 2400], [0, -180]);
+  const blobY2 = useTransform(scrollY, [0, 2400], [0, 140]);
 
   return (
     <ThemeContext.Provider value={theme}>
@@ -964,9 +1106,19 @@ export default function App() {
           ::-webkit-scrollbar { width: 4px; }
           ::-webkit-scrollbar-track { background: ${theme.bg}; }
           ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, ${theme.green}, ${theme.blue}); border-radius: 4px; }
-          .glow-text { text-shadow: 0 0 40px ${theme.green}55, 0 0 80px ${theme.blue}33; }
-          .card-hover { transition: transform 0.22s ease, box-shadow 0.22s ease; }
-          .card-hover:hover { transform: translateY(-3px); }
+          .glow-text { animation: glowPulse 3.6s ease-in-out infinite; }
+          @keyframes glowPulse {
+            0%, 100% { text-shadow: 0 0 40px ${theme.green}55, 0 0 80px ${theme.blue}33; }
+            50% { text-shadow: 0 0 58px ${theme.green}85, 0 0 105px ${theme.blue}55; }
+          }
+          .card-hover { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+          .card-hover:hover { transform: translateY(-5px); box-shadow: 0 16px 44px rgba(0,0,0,0.28); }
+          .link-sweep { position: relative; }
+          .link-sweep::after {
+            content: ''; position: absolute; left: 0; bottom: -2px; width: 0; height: 1px;
+            background: currentColor; transition: width 0.25s ease;
+          }
+          .link-sweep:hover::after { width: 100%; }
           @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
           .marquee-track { animation: marquee 32s linear infinite; }
           .spotlight-card::before {
@@ -980,11 +1132,27 @@ export default function App() {
             -webkit-mask-image: radial-gradient(var(--glow-radius, 90px) circle at var(--tx, -999px) var(--ty, -999px), black 0%, black 25%, transparent 70%);
             mask-image: radial-gradient(var(--glow-radius, 90px) circle at var(--tx, -999px) var(--ty, -999px), black 0%, black 25%, transparent 70%);
           }
+          ::selection { background: ${theme.green}; color: ${theme.onAccent}; }
+          :focus-visible { outline: 2px solid ${theme.green}; outline-offset: 2px; }
+          .noise-overlay {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.035; mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+          }
+          .spotlight-card { box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
+          .shine-btn { position: relative; overflow: hidden; }
+          .shine-btn::after {
+            content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+            transform: skewX(-20deg);
+          }
+          .shine-btn:hover::after { animation: shineSweep 0.9s ease forwards; }
+          @keyframes shineSweep { from { left: -60%; } to { left: 130%; } }
           @media print {
             body { background: #fff !important; }
             nav, footer, .marquee-parent, [data-print-hide="true"] { display: none !important; }
             .zword { transform: none !important; }
             .text-glow-overlay { display: none !important; }
+            .noise-overlay { display: none !important; }
             section { break-inside: avoid; page-break-inside: avoid; }
             * { box-shadow: none !important; text-shadow: none !important; animation: none !important; }
           }
@@ -993,6 +1161,7 @@ export default function App() {
         <AnimatePresence>{!booted && <BootSequence onDone={() => setBooted(true)} />}</AnimatePresence>
 
         <ScrollProgressBar progress={scrollPct} />
+        <div className="noise-overlay" data-print-hide="true" />
         <DataFlowField isDark={isDark} />
         <GlowCursor isDark={isDark} />
         <PipelineRail active={activeSection} onJump={scrollTo} />
@@ -1000,8 +1169,8 @@ export default function App() {
 
         <div className="fixed inset-0 z-0 pointer-events-none" style={{ backgroundImage: `linear-gradient(${theme.gridColor} 1px, transparent 1px), linear-gradient(90deg, ${theme.gridColor} 1px, transparent 1px)`, backgroundSize: "56px 56px" }} />
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full blur-[130px]" style={{ background: `radial-gradient(circle, ${theme.green}14, transparent)` }} />
-          <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] rounded-full blur-[110px]" style={{ background: `radial-gradient(circle, ${theme.blue}14, transparent)` }} />
+          <motion.div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full blur-[130px]" style={{ background: `radial-gradient(circle, ${theme.green}14, transparent)`, y: blobY1 }} />
+          <motion.div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] rounded-full blur-[110px]" style={{ background: `radial-gradient(circle, ${theme.blue}14, transparent)`, y: blobY2 }} />
         </div>
 
         {/* ===== NAV ===== */}
@@ -1019,10 +1188,18 @@ export default function App() {
               <div className="hidden md:flex items-center gap-1 font-mono">
                 {STAGES.map((s) => (
                   <motion.button key={s.id} onClick={() => scrollTo(s.id)}
-                    className="px-2.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-all"
-                    style={{ color: activeSection === s.id ? theme.green : theme.textSecondary, background: activeSection === s.id ? theme.green + "1a" : "transparent", border: `1px solid ${activeSection === s.id ? theme.green + "55" : "transparent"}` }}
+                    className="relative px-2.5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-colors"
+                    style={{ color: activeSection === s.id ? theme.green : theme.textSecondary }}
                     whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                    {s.code}·{s.label}
+                    {activeSection === s.id && (
+                      <motion.span
+                        layoutId="navPill"
+                        className="absolute inset-0 rounded-md"
+                        style={{ background: theme.green + "1a", border: `1px solid ${theme.green}55` }}
+                        transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      />
+                    )}
+                    <span className="relative z-10">{s.code}·{s.label}</span>
                   </motion.button>
                 ))}
               </div>
@@ -1093,13 +1270,13 @@ export default function App() {
             </motion.p>
 
             <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }} className="mb-5">
-              <div className="relative inline-block">
+              <motion.div className="relative inline-block" animate={{ y: [0, -6, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
                 <motion.div className="absolute inset-0 rounded-full blur-2xl opacity-50" style={{ background: `radial-gradient(circle, ${theme.green}, ${theme.blue})` }} animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 3, repeat: Infinity }} />
                 <img src="/img.jpeg" alt="Parth" className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-2 shadow-2xl" style={{ borderColor: theme.green + "80" }} />
                 <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full border-2 flex items-center justify-center" style={{ background: theme.green, borderColor: theme.bg }}>
                   <Radio size={12} className="text-black" />
                 </div>
-              </div>
+              </motion.div>
               <div className="mt-2.5 text-[11px] font-mono uppercase tracking-widest" style={{ color: theme.textMuted }}>
                 FIG. 01 — DATA ENGINEER
               </div>
@@ -1124,6 +1301,10 @@ export default function App() {
               <PipelineConsole />
             </motion.div>
 
+            <motion.div className="mt-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}>
+              <ArchitectureDiagram />
+            </motion.div>
+
             <motion.div className="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-2xl mx-auto" initial="hidden" animate="show" variants={containerStagger}>
               <StatTile value="1" label="rows_processed_m" colorKey="blue" />
               <StatTile value="3" label="certifications" colorKey="amber" />
@@ -1132,8 +1313,8 @@ export default function App() {
             </motion.div>
 
             <motion.div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center items-center" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-              <MagneticButton onClick={() => scrollTo("projects")} className="w-full sm:w-auto px-7 py-3 rounded-xl font-bold text-base font-mono" style={{ background: theme.green, color: theme.onAccent }}>
-                <span className="flex items-center justify-center gap-2"><Rocket size={16} /> view_pipeline_runs()</span>
+              <MagneticButton onClick={() => scrollTo("projects")} className="shine-btn w-full sm:w-auto px-7 py-3 rounded-xl font-bold text-base font-mono" style={{ background: theme.green, color: theme.onAccent }}>
+                <span className="relative z-10 flex items-center justify-center gap-2"><Rocket size={16} /> view_pipeline_runs()</span>
               </MagneticButton>
               <MagneticButton as="a" href="/Data_and_AI_Resume.pdf" target="_blank" rel="noopener noreferrer"
                 className="w-full sm:w-auto px-7 py-3 rounded-xl font-bold text-base border font-mono inline-flex items-center justify-center gap-2"
@@ -1286,10 +1467,19 @@ export default function App() {
 
           <div className="flex flex-wrap gap-2 justify-center mb-8 font-mono">
             {SKILL_CATEGORIES.map(cat => (
-              <motion.button key={cat.id} onClick={() => setSkillFilter(cat.id)} className="px-3.5 py-1.5 rounded-full text-xs font-bold border uppercase tracking-wide"
-                style={skillFilter === cat.id ? { background: theme.green + "22", color: theme.green, borderColor: theme.green + "70" } : { background: "transparent", color: theme.textSecondary, borderColor: theme.cardBorder }}
+              <motion.button key={cat.id} onClick={() => setSkillFilter(cat.id)}
+                className="relative px-3.5 py-1.5 rounded-full text-xs font-bold border uppercase tracking-wide overflow-hidden"
+                style={{ color: skillFilter === cat.id ? theme.green : theme.textSecondary, borderColor: skillFilter === cat.id ? theme.green + "70" : theme.cardBorder }}
                 whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-                {cat.label}
+                {skillFilter === cat.id && (
+                  <motion.span
+                    layoutId="categoryPill"
+                    className="absolute inset-0 rounded-full"
+                    style={{ background: theme.green + "22" }}
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <span className="relative z-10">{cat.label}</span>
               </motion.button>
             ))}
           </div>
@@ -1476,6 +1666,13 @@ export default function App() {
 
         {/* ===== 07 · CONTACT (SERVE) ===== */}
         <StageShell id="contact">
+          <motion.div className="max-w-3xl mx-auto mb-10" initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <div className="text-xs font-mono uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: theme.textMuted }}>
+              <span style={{ color: theme.green }}>{"//"}</span> or query me directly
+            </div>
+            <InteractiveTerminal onToggleTheme={() => setIsDark(d => !d)} />
+          </motion.div>
+
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="space-y-4">
               <GlowText
@@ -1493,7 +1690,7 @@ export default function App() {
                   initial={{ opacity: 0, x: -15 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }} whileHover={{ x: 4 }}>
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 relative z-10" style={{ background: theme[item.key] + "20", color: theme[item.key] }}>{item.icon}</div>
                   {item.href ? (
-                    <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-base font-mono relative z-10" style={{ color: theme.textSecondary }}>{item.label}</a>
+                    <a href={item.href} target="_blank" rel="noopener noreferrer" className="link-sweep text-base font-mono relative z-10" style={{ color: theme.textSecondary }}>{item.label}</a>
                   ) : (
                     <span className="text-base font-mono relative z-10" style={{ color: theme.textSecondary }}>{item.label}</span>
                   )}
@@ -1535,9 +1732,9 @@ export default function App() {
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: theme.green }} /> SYSTEM STATUS: ALL PIPELINES OPERATIONAL · © 2026 Parth
             </p>
             <div className="flex items-center gap-3">
-              <a href="https://github.com/parthhhhh12" target="_blank" rel="noopener noreferrer" style={{ color: theme.textMuted }}><Github size={16} /></a>
-              <a href="https://www.linkedin.com/in/singh05e/" target="_blank" rel="noopener noreferrer" style={{ color: theme.textMuted }}><Linkedin size={16} /></a>
-              <a href="mailto:parthsingh1253@gmail.com" style={{ color: theme.textMuted }}><Mail size={16} /></a>
+              <motion.a href="https://github.com/parthhhhh12" target="_blank" rel="noopener noreferrer" style={{ color: theme.textMuted }} whileHover={{ scale: 1.2, color: theme.green }}><Github size={16} /></motion.a>
+              <motion.a href="https://www.linkedin.com/in/singh05e/" target="_blank" rel="noopener noreferrer" style={{ color: theme.textMuted }} whileHover={{ scale: 1.2, color: theme.blue }}><Linkedin size={16} /></motion.a>
+              <motion.a href="mailto:parthsingh1253@gmail.com" style={{ color: theme.textMuted }} whileHover={{ scale: 1.2, color: theme.pink }}><Mail size={16} /></motion.a>
             </div>
           </div>
         </footer>
