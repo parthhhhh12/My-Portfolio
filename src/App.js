@@ -7,7 +7,7 @@ import {
   Database, Cloud, Calendar, Users, Target, BookOpen, Briefcase,
   CheckCircle2, ArrowUpRight, Layers, Terminal, Workflow, Command,
   Brain, Zap, Sparkles, TrendingUp, Code2, ArrowRight, X, Search,
-  Rocket, Cpu, ShieldCheck, Radio, Sun, Moon, Copy, Check,
+  Rocket, Cpu, ShieldCheck, Radio, Sun, Moon, Copy, Check, Send, Bot,
 } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
@@ -536,82 +536,400 @@ function CommandPalette({ open, onClose, onNavigate, onToggleTheme, isDark }) {
 }
 
 /* ============================
-   Interactive query terminal — a real typed-command shell over the
-   portfolio's own data. This is a functional feature, not decoration:
-   commands are parsed and answered from the same SKILLS/EXPERIENCE/PROJECTS
-   arrays that power the rest of the site.
+   Portfolio chatbot — natural-language FAQ assistant over the site's own
+   data. This is intentionally NOT a wired-up LLM: shipping a real AI chat
+   here would require a backend to hide an API key (client-side code can
+   never keep a key secret), which is out of scope for a static portfolio
+   and would be one more thing that can break in production. Instead this
+   is an honest, clearly-labeled rule-based assistant — keyword/intent
+   matching against SKILLS/EXPERIENCE/PROJECTS/CAPABILITIES, so every
+   answer stays in sync with the rest of the site by construction.
    ============================ */
-function InteractiveTerminal({ onToggleTheme }) {
+const CHAT_QUICK_QUESTIONS = [
+  "What are your skills?",
+  "Do you know Python?",
+  "Tell me about your experience",
+  "Show me a project",
+  "How can I hire you?",
+];
+
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/* Short/common words that risk being an accidental substring of an unrelated
+   word (yo -> "your", hi -> "hire"/"this", hey -> "they", sup -> "support",
+   rag -> "storage", job -> "enjoy", pay -> "company") get EXACT whole-word
+   matching. Everything else is prefix-matched so stems like "skill"/
+   "project"/"intern"/"certificat" still catch "skills"/"projects"/
+   "internship"/"certification" — this was tested and tuned against real
+   phrasing, not just guessed at. */
+const CHAT_EXACT_WORDS = new Set(["hi", "yo", "hey", "sup", "rag", "job", "pay"]);
+function keywordHits(text, kw) {
+  const pattern = CHAT_EXACT_WORDS.has(kw) ? `\\b${escapeRegExp(kw)}\\b` : `\\b${escapeRegExp(kw)}`;
+  return new RegExp(pattern).test(text);
+}
+
+/* Aliases so recruiters can ask about specific tools/companies using
+   whatever shorthand they actually type — these map onto the exact
+   SKILLS / EXPERIENCE entries, so proficiency levels always stay accurate. */
+const SKILL_ALIASES = {
+  "gen ai": "Generative AI", "genai": "Generative AI", "spark": "PySpark",
+  "azure": "Microsoft Azure", "ms azure": "Microsoft Azure", "k8s": "Kubernetes",
+  "vector db": "Vector Databases", "vector dbs": "Vector Databases", "agentic ai": "AI Agents",
+};
+const PROJECT_ALIASES = [
+  ["synapse pipeline", "snowflake pipeline", "reconciliation", "raw clean error", "adls", "dbt pipeline", "synapse project"],
+  ["taxi", "nyc taxi", "databricks etl", "batch etl", "spark etl", "databricks project"],
+];
+const EXPERIENCE_ALIASES = [["nagarro"], ["canara", "hsbc", "devops intern", "cloud intern"]];
+
+/* Pre-trained knowledge base — every recognized topic about Parth's
+   profile, built as a *layered* matcher rather than one flat keyword list:
+   1) specific skill/project/company mentions are resolved first, straight
+      from SKILLS/PROJECTS/EXPERIENCE — this alone covers all 21 skills,
+      both case studies, and both jobs individually, and can never drift
+      out of sync with the rest of the site since it reads the same arrays.
+   2) broader FAQ intents (below) catch everything else — greetings,
+      general "what are your skills" style questions, hiring, salary,
+      notice period, why-hire-him, growth areas, meta questions about the
+      bot itself, and a polite decline for anything outside scope. */
+function findSkillMention(text) {
+  const sorted = [...SKILLS].sort((a, b) => b.name.length - a.name.length);
+  for (const s of sorted) {
+    if (new RegExp(`\\b${escapeRegExp(s.name.toLowerCase())}\\b`).test(text)) return s;
+  }
+  for (const [alias, name] of Object.entries(SKILL_ALIASES)) {
+    if (new RegExp(`\\b${escapeRegExp(alias)}\\b`).test(text)) return SKILLS.find((s) => s.name === name);
+  }
+  return null;
+}
+function findProjectMention(text) {
+  for (let i = 0; i < PROJECTS.length; i++) {
+    for (const alias of PROJECT_ALIASES[i] || []) {
+      if (new RegExp(`\\b${escapeRegExp(alias)}`).test(text)) return PROJECTS[i];
+    }
+  }
+  return null;
+}
+function findExperienceMention(text) {
+  for (let i = 0; i < EXPERIENCE.length; i++) {
+    for (const alias of EXPERIENCE_ALIASES[i] || []) {
+      if (new RegExp(`\\b${escapeRegExp(alias)}\\b`).test(text)) return EXPERIENCE[i];
+    }
+  }
+  return null;
+}
+
+const CHAT_INTENTS = [
+  {
+    id: "greeting",
+    keywords: ["hi", "hello", "hey", "yo", "sup", "greetings"],
+    response: () => "Hey! I'm Parth's portfolio assistant. Ask me about his skills, work experience, projects, certifications, or how to get in touch.",
+  },
+  {
+    id: "skills",
+    keywords: ["skill", "tech stack", "technologies", "tools", "stack", "know", "proficient", "language", "programming"],
+    response: () => {
+      const top = SKILLS.filter((s) => s.proficiency === "Advanced" || s.current).slice(0, 6);
+      return `Parth's core stack:\n${top.map((s) => `- ${s.name} (${s.proficiency})`).join("\n")}\n\nAsk about any specific tool (e.g. "do you know Docker?") for detail, or see the SCHEMA section above.`;
+    },
+  },
+  {
+    id: "experience",
+    keywords: ["experience", "work history", "job", "career", "background", "resume history"],
+    response: () => `Parth's work history:\n${EXPERIENCE.map((e) => `- ${e.role} @ ${e.company} (${e.period})`).join("\n")}\n\nHe's currently shipping data pipelines at Nagarro. Ask about a specific company for more detail.`,
+  },
+  {
+    id: "years",
+    keywords: ["how many years", "years of experience", "fresher", "experience level", "senior or junior"],
+    response: () => "About 1 year of full-time experience as a Data Engineer at Nagarro (since Jul 2025), plus a prior Cloud & DevOps internship at Canara HSBC in 2024.",
+  },
+  {
+    id: "projects",
+    keywords: ["project", "built", "case study", "github", "repo", "portfolio piece"],
+    response: () => `Featured projects:\n${PROJECTS.map((p) => `- ${p.title} — ${p.subtitle}`).join("\n")}\n\nAsk about a specific one (e.g. "tell me about the taxi project") for the full write-up.`,
+    actions: [{ label: "View GitHub", type: "link", href: "https://github.com/parthhhhh12" }],
+  },
+  {
+    id: "offer",
+    keywords: ["offer", "capabilit", "provide", "help with", "specializ", "why should", "why hire", "why you", "makes you", "makes him", "strength"],
+    response: () => `Why Parth:\n${CAPABILITIES.map((c) => `- ${c.title}: ${c.desc.split(".")[0]}.`).join("\n")}`,
+  },
+  {
+    id: "growth",
+    keywords: ["weakness", "still learning", "growth area", "improve", "gaps"],
+    response: () => {
+      const growing = SKILLS.filter((s) => s.proficiency === "Learning" || s.proficiency === "Exploring");
+      return `Honestly: he's upfront about where he's still building depth —\n${growing.map((s) => `- ${s.name} (${s.proficiency})`).join("\n")}\n\nEverything else on the stack is Intermediate or Advanced.`;
+    },
+  },
+  {
+    id: "certifications",
+    keywords: ["certificat", "certified", "credential", "databricks cert", "hackerrank"],
+    response: () => "Certifications:\n- Databricks Certified Data Engineer Associate\n- Databricks Certified Generative AI Engineer Associate\n- HackerRank SQL Advanced",
+  },
+  {
+    id: "education",
+    keywords: ["education", "degree", "college", "university", "study", "upes", "grade", "gpa"],
+    response: () => "B.Tech in Computer Science Engineering, University of Petroleum and Energy Studies, Dehradun (Aug 2021 – Jun 2025) — specialization in Cloud Computing and DevOps, Grade A.",
+  },
+  {
+    id: "genai",
+    keywords: ["genai", "generative ai", "rag", "llm", "agent", "vector database", "ai agent"],
+    response: () => "Parth is extending his data pipelines into GenAI territory — RAG pipelines with Azure OpenAI, vector databases, and early AI-agent workflows. Still hands-on and actively growing here.",
+  },
+  {
+    id: "location",
+    keywords: ["location", "where is he", "based", "city", "remote", "onsite"],
+    response: () => "Based in Gurugram, Haryana, India.",
+  },
+  {
+    id: "hire",
+    keywords: ["hire", "available", "opportunit", "job opening", "recruit", "open to work", "position"],
+    response: () => "Parth is open to new opportunities in data engineering and AI/ML. Best next step: drop him an email or grab his resume.",
+    actions: [{ label: "Copy Email", type: "email" }, { label: "Get Resume", type: "resume" }],
+  },
+  {
+    id: "notice",
+    keywords: ["notice period", "when can you join", "when can he join", "when can he start", "when could he start", "start date", "availability date"],
+    response: () => "Best discussed directly with Parth — reach out and he'll share his current availability.",
+    actions: [{ label: "Copy Email", type: "email" }],
+  },
+  {
+    id: "salary",
+    keywords: ["salary", "rate", "compensation", "pay", "cost to hire", "does he cost", "ctc"],
+    response: () => "That's best discussed directly — reach out and Parth will get back to you.",
+    actions: [{ label: "Copy Email", type: "email" }],
+  },
+  {
+    id: "resume",
+    keywords: ["resume", "cv", "download resume"],
+    response: () => "Here's Parth's resume:",
+    actions: [{ label: "Get Resume", type: "resume" }],
+  },
+  {
+    id: "contact",
+    keywords: ["contact", "email", "reach", "linkedin", "connect", "get in touch"],
+    response: () => "You can reach Parth directly:",
+    actions: [{ label: "Copy Email", type: "email" }, { label: "LinkedIn", type: "link", href: "https://www.linkedin.com/in/singh05e/" }, { label: "GitHub", type: "link", href: "https://github.com/parthhhhh12" }],
+  },
+  {
+    id: "theme",
+    keywords: ["theme", "dark mode", "light mode", "dark theme", "light theme"],
+    response: () => "Switched the theme for you — check the top-right toggle!",
+  },
+  {
+    id: "meta",
+    keywords: ["who built this", "who made this", "are you real", "are you ai", "real ai", "chatbot", "are you a bot"],
+    response: () => "I'm a rule-based FAQ assistant built by Parth as part of this portfolio — not a live LLM connection. I answer from his real skills/experience/projects data, so nothing here is made up.",
+  },
+  {
+    id: "personal",
+    keywords: ["hobby", "hobbies", "favorite", "favourite", "fun fact", "weekend", "personal life"],
+    response: () => "I'm scoped to Parth's professional profile, so I don't have that — try asking about his skills, experience, or projects instead!",
+  },
+  {
+    id: "thanks",
+    keywords: ["thank", "thanks", "appreciate", "cool", "nice one", "awesome"],
+    response: () => "Anytime! Let me know if there's anything else you'd like to know about Parth's work.",
+  },
+];
+
+function matchChatIntent(input) {
+  const text = input.toLowerCase();
+
+  const skillHit = findSkillMention(text);
+  if (skillHit) {
+    const note = skillHit.current ? " He's actively using it right now at Nagarro." : "";
+    return { text: `Yes — ${skillHit.name}: ${skillHit.proficiency} proficiency.\n${skillHit.description}.${note}`, actions: [], intentId: "skill-lookup" };
+  }
+  const projectHit = findProjectMention(text);
+  if (projectHit) {
+    return {
+      text: `${projectHit.title}\n${projectHit.subtitle}\n\nProblem: ${projectHit.problem}\n\nImpact:\n${projectHit.impact.map((x) => `- ${x}`).join("\n")}`,
+      actions: [{ label: "View GitHub", type: "link", href: projectHit.repo }],
+      intentId: "project-lookup",
+    };
+  }
+  const expHit = findExperienceMention(text);
+  if (expHit) {
+    return {
+      text: `${expHit.role} @ ${expHit.company} (${expHit.period})\n${expHit.bullets.map((b) => `- ${b}`).join("\n")}`,
+      actions: [],
+      intentId: "experience-lookup",
+    };
+  }
+
+  let best = null;
+  let bestScore = 0;
+  for (const intent of CHAT_INTENTS) {
+    let score = 0;
+    for (const kw of intent.keywords) {
+      if (keywordHits(text, kw)) score += kw.split(" ").length;
+    }
+    if (score > bestScore) { bestScore = score; best = intent; }
+  }
+  if (!best) {
+    return { text: "I'm not totally sure about that one — try asking about skills, experience, projects, certifications, or how to get in touch.", actions: [], intentId: null };
+  }
+  return { text: best.response(), actions: best.actions || [], intentId: best.id };
+}
+
+function TypingDots() {
   const theme = useTheme();
-  const [history, setHistory] = useState([
-    { type: "output", text: "parth-shell v1.0 — type 'help' to see available commands." },
+  return (
+    <div className="flex items-center gap-1 px-3.5 py-3">
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: theme.textMuted }}
+          animate={{ y: [0, -4, 0] }} transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.15 }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ChatBubble({ message, onAction }) {
+  const theme = useTheme();
+  const isUser = message.role === "user";
+  const lines = message.text.split("\n");
+  return (
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className={isUser ? "flex justify-end mb-3" : "flex justify-start mb-3"}>
+      {!isUser && (
+        <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mr-2" style={{ background: theme.green + "20", color: theme.green }}>
+          <Bot size={14} />
+        </div>
+      )}
+      <div className="max-w-[80%]">
+        <div
+          className="rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed font-mono"
+          style={{
+            background: isUser ? theme.green : theme.inputBg,
+            color: isUser ? theme.onAccent : theme.textSecondary,
+            border: isUser ? "none" : `1px solid ${theme.cardBorder}`,
+            borderTopRightRadius: isUser ? 4 : 16,
+            borderTopLeftRadius: isUser ? 16 : 4,
+          }}
+        >
+          {lines.map((line, i) => (<div key={i}>{line}</div>))}
+        </div>
+        {message.actions && message.actions.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {message.actions.map((a, i) => (
+              <button
+                key={i} onClick={() => onAction(a)}
+                className="text-xs font-mono font-bold px-2.5 py-1 rounded-full border"
+                style={{ borderColor: theme.green + "50", color: theme.green, background: theme.green + "10" }}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function ChatBot({ onToggleTheme }) {
+  const theme = useTheme();
+  const [messages, setMessages] = useState([
+    { role: "bot", text: "Hi! I'm Parth's portfolio assistant. Ask me about his skills, experience, projects, or how to get in touch.", actions: [] },
   ]);
   const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [copied, setCopied] = useState(false);
   const scrollRef = useRef(null);
-  const inputRef = useRef(null);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [history]);
+  }, [messages, isTyping]);
 
-  const COMMANDS = useMemo(() => ({
-    help: () => "available: help, whoami, skills, experience, projects, certifications, contact, resume, theme, clear",
-    whoami: () => "Parth — AI Data Engineer @ Nagarro. Building pipelines, shipping ML, exploring GenAI.",
-    skills: () => SKILLS.slice(0, 8).map(s => `- ${s.name} (${s.proficiency})`).join("\n"),
-    experience: () => EXPERIENCE.map(e => `- ${e.role} @ ${e.company} [${e.period}]`).join("\n"),
-    projects: () => PROJECTS.map(p => `- ${p.title}`).join("\n"),
-    certifications: () => "- Databricks Certified Data Engineer Associate\n- Databricks Certified Generative AI Engineer Associate\n- HackerRank SQL Advanced",
-    contact: () => "email: parthsingh1253@gmail.com  |  github.com/parthhhhh12  |  linkedin.com/in/singh05e",
-    resume: () => { window.open("/Data_and_AI_Resume.pdf", "_blank"); return "opening resume.pdf ..."; },
-    theme: () => { onToggleTheme(); return "theme switched."; },
-  }), [onToggleTheme]);
-
-  const runCommand = (raw) => {
-    const cmd = raw.trim().toLowerCase();
-    if (!cmd) return;
-    setHistory((h) => [...h, { type: "input", text: raw }]);
-    if (cmd === "clear") { setHistory([]); return; }
-    const handler = COMMANDS[cmd];
-    const output = handler ? handler() : `command not found: ${cmd} — type 'help'`;
-    setHistory((h) => [...h, { type: "output", text: output }]);
+  const handleAction = (action) => {
+    if (action.type === "link") window.open(action.href, "_blank");
+    if (action.type === "resume") window.open("/Data_and_AI_Resume.pdf", "_blank");
+    if (action.type === "email") {
+      navigator.clipboard?.writeText("parthsingh1253@gmail.com");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") { runCommand(input); setInput(""); }
+  const send = (text) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    setMessages((m) => [...m, { role: "user", text: trimmed, actions: [] }]);
+    setInput("");
+    setIsTyping(true);
+    const delay = 500 + Math.random() * 500;
+    setTimeout(() => {
+      const result = matchChatIntent(trimmed);
+      if (result.intentId === "theme") onToggleTheme();
+      setMessages((m) => [...m, { role: "bot", text: result.text, actions: result.actions }]);
+      setIsTyping(false);
+    }, delay);
   };
+
+  const handleKeyDown = (e) => { if (e.key === "Enter") send(input); };
 
   return (
-    <div
-      className="rounded-xl border overflow-hidden font-mono text-left cursor-text"
-      style={{ background: theme.mode === "night" ? "rgba(5,9,8,0.85)" : "rgba(255,255,255,0.7)", borderColor: theme.cardBorder }}
-      onClick={() => inputRef.current?.focus()}
-    >
-      <div className="flex items-center gap-1.5 px-4 py-2.5 border-b" style={{ borderColor: theme.cardBorder, background: "rgba(120,120,120,0.04)" }}>
-        <span className="w-2.5 h-2.5 rounded-full" style={{ background: theme.red }} />
-        <span className="w-2.5 h-2.5 rounded-full" style={{ background: theme.amber }} />
-        <span className="w-2.5 h-2.5 rounded-full" style={{ background: theme.green }} />
-        <span className="ml-3 text-xs" style={{ color: theme.textMuted }}>parth-shell — try 'whoami' or 'skills'</span>
-      </div>
-      <div ref={scrollRef} className="px-4 py-4 text-xs sm:text-sm h-52 overflow-y-auto">
-        {history.map((h, i) => (
-          <div key={i} className="mb-1.5 whitespace-pre-wrap" style={{ color: h.type === "input" ? theme.green : theme.textSecondary }}>
-            {h.type === "input" ? `$ ${h.text}` : h.text}
-          </div>
-        ))}
-        <div className="flex items-center gap-2">
-          <span style={{ color: theme.green }}>$</span>
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent outline-none min-w-0"
-            style={{ color: theme.text }}
-            placeholder="type a command..."
-            spellCheck={false}
-            autoComplete="off"
-          />
+    <div className="rounded-xl border overflow-hidden" style={{ background: theme.mode === "night" ? "rgba(5,9,8,0.85)" : "rgba(255,255,255,0.7)", borderColor: theme.cardBorder }}>
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b" style={{ borderColor: theme.cardBorder, background: "rgba(120,120,120,0.04)" }}>
+        <div className="relative w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: theme.green + "20", color: theme.green }}>
+          <Bot size={16} />
+          <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2" style={{ background: theme.green, borderColor: theme.bg }} />
         </div>
+        <div className="min-w-0">
+          <div className="text-sm font-bold font-mono truncate" style={{ color: theme.text }}>Portfolio Assistant</div>
+          <div className="text-[11px] font-mono flex items-center gap-1.5" style={{ color: theme.textMuted }}>
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style={{ background: theme.green }} /> online · answers about Parth
+          </div>
+        </div>
+        {copied && <span className="ml-auto text-xs font-mono flex-shrink-0" style={{ color: theme.green }}>email copied ✓</span>}
+      </div>
+
+      <div ref={scrollRef} className="px-4 py-4 h-64 overflow-y-auto">
+        {messages.map((m, i) => (<ChatBubble key={i} message={m} onAction={handleAction} />))}
+        {isTyping && (
+          <div className="flex justify-start mb-3">
+            <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mr-2" style={{ background: theme.green + "20", color: theme.green }}>
+              <Bot size={14} />
+            </div>
+            <div className="rounded-2xl" style={{ background: theme.inputBg, border: `1px solid ${theme.cardBorder}`, borderTopLeftRadius: 4 }}>
+              <TypingDots />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="px-4 pb-3 flex flex-wrap gap-1.5">
+        {CHAT_QUICK_QUESTIONS.map((q) => (
+          <button
+            key={q} onClick={() => send(q)}
+            className="text-xs font-mono px-2.5 py-1 rounded-full border"
+            style={{ borderColor: theme.cardBorder, color: theme.textSecondary }}
+          >
+            {q}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-2 px-4 py-3 border-t" style={{ borderColor: theme.cardBorder }}>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask about skills, experience, projects..."
+          className="flex-1 bg-transparent outline-none text-sm font-mono min-w-0"
+          style={{ color: theme.text }}
+          spellCheck={false}
+          autoComplete="off"
+        />
+        <button onClick={() => send(input)} className="p-2 rounded-lg flex-shrink-0" style={{ background: theme.green, color: theme.onAccent }} aria-label="Send message">
+          <Send size={14} />
+        </button>
+      </div>
+      <div className="px-4 pb-2 text-[10px] font-mono text-center" style={{ color: theme.textMuted }}>
+        automated FAQ assistant — not a live connection to Parth
       </div>
     </div>
   );
@@ -1668,9 +1986,9 @@ export default function App() {
         <StageShell id="contact">
           <motion.div className="max-w-3xl mx-auto mb-10" initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <div className="text-xs font-mono uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: theme.textMuted }}>
-              <span style={{ color: theme.green }}>{"//"}</span> or query me directly
+              <span style={{ color: theme.green }}>{"//"}</span> ask my portfolio assistant
             </div>
-            <InteractiveTerminal onToggleTheme={() => setIsDark(d => !d)} />
+            <ChatBot onToggleTheme={() => setIsDark(d => !d)} />
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
