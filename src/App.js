@@ -93,6 +93,7 @@ const EXPERIENCE = [
     company: "Nagarro",
     location: "Gurugram",
     period: "Jul 2025 – Present",
+    start: "2025-07-01", end: null,
     status: "ACTIVE",
     key: "green",
     bullets: [
@@ -106,6 +107,7 @@ const EXPERIENCE = [
     company: "Canara HSBC Life Insurance Company",
     location: "Gurugram",
     period: "Jul 2024 – Aug 2024",
+    start: "2024-07-01", end: "2024-08-31",
     status: "COMPLETED",
     key: "blue",
     bullets: [
@@ -619,6 +621,32 @@ function findExperienceMention(text) {
   return null;
 }
 
+/* Real date arithmetic, not string guessing — "period" text like "Jul 2025 –
+   Present" stays purely for display; start/end fields on EXPERIENCE drive
+   every numeric answer, so duration questions get an exact answer that also
+   stays correct automatically as real time passes (no annual manual edits). */
+function jobDurationMonths(job) {
+  const start = new Date(job.start);
+  const end = job.end ? new Date(job.end) : new Date();
+  let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+  if (end.getDate() < start.getDate()) months -= 1;
+  return Math.max(months, 0);
+}
+function formatMonths(totalMonths) {
+  if (totalMonths < 1) return "less than a month";
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+  const parts = [];
+  if (years > 0) parts.push(`${years} year${years !== 1 ? "s" : ""}`);
+  if (months > 0) parts.push(`${months} month${months !== 1 ? "s" : ""}`);
+  return parts.join(" ");
+}
+/* A question counts as "numeric" if it's fishing for a count/duration —
+   "how many years", "how long", "in years", "duration", "tenure", etc. —
+   as opposed to "tell me about" style questions, which still get the
+   full descriptive answer. */
+const DURATION_QUESTION_RE = /\bhow (many|much|long)\b|\bin (years|months)\b|\bduration\b|\btenure\b/;
+
 const CHAT_INTENTS = [
   {
     id: "greeting",
@@ -639,9 +667,24 @@ const CHAT_INTENTS = [
     response: () => `Parth's work history:\n${EXPERIENCE.map((e) => `- ${e.role} @ ${e.company} (${e.period})`).join("\n")}\n\nHe's currently shipping data pipelines at Nagarro. Ask about a specific company for more detail.`,
   },
   {
+    id: "role",
+    keywords: ["job title", "his role", "his title", "what does he do", "current position", "what kind of engineer", "what is his role", "what is he", "current role"],
+    response: () => {
+      const primary = EXPERIENCE.find((e) => e.status === "ACTIVE") || EXPERIENCE[0];
+      return `Parth's current title is ${primary.role} at ${primary.company}. He builds data pipelines and cloud data platforms, and is extending into ML/GenAI.`;
+    },
+  },
+  {
     id: "years",
     keywords: ["how many years", "years of experience", "fresher", "experience level", "senior or junior"],
-    response: () => "About 1 year of full-time experience as a Data Engineer at Nagarro (since Jul 2025), plus a prior Cloud & DevOps internship at Canara HSBC in 2024.",
+    response: () => {
+      const primary = EXPERIENCE.find((e) => e.status === "ACTIVE") || EXPERIENCE[0];
+      const intern = EXPERIENCE.find((e) => e.status !== "ACTIVE");
+      const primaryDur = formatMonths(jobDurationMonths(primary));
+      const internDur = intern ? formatMonths(jobDurationMonths(intern)) : null;
+      return `About ${primaryDur} of full-time experience as a ${primary.role} at ${primary.company} (since ${primary.period.split(" – ")[0]})` +
+        (internDur ? `, plus a ${internDur} Cloud & DevOps internship at Canara HSBC in 2024.` : ".");
+    },
   },
   {
     id: "projects",
@@ -669,7 +712,7 @@ const CHAT_INTENTS = [
   },
   {
     id: "education",
-    keywords: ["education", "degree", "college", "university", "study", "upes", "grade", "gpa"],
+    keywords: ["education", "degree", "college", "university", "study", "upes", "grade", "gpa", "cgpa"],
     response: () => "B.Tech in Computer Science Engineering, University of Petroleum and Energy Studies, Dehradun (Aug 2021 – Jun 2025) — specialization in Cloud Computing and DevOps, Grade A.",
   },
   {
@@ -734,8 +777,53 @@ const CHAT_INTENTS = [
   },
 ];
 
+/* Detects "is he/Parth a/an X" identity questions — the single most obvious
+   question a recruiter asks ("is Parth a data engineer?") and the one the
+   entity/keyword lookups below don't cover on their own, since "data
+   engineer" is a job title, not a skill name or company. */
+const ROLE_TRUE = ["data engineer", "ai data engineer", "data and ai engineer", "cloud engineer", "pipeline engineer"];
+const ROLE_PARTIAL = ["ai engineer", "ml engineer", "machine learning engineer", "genai engineer", "devops engineer", "cloud and devops engineer"];
+function detectRoleQuestion(text) {
+  const m = text.match(/\bis\s+(?:he|parth)\s+an?\s+([a-z][a-z\s-]*?)\s*\??$/);
+  return m ? m[1].trim() : null;
+}
+
 function matchChatIntent(input) {
   const text = input.toLowerCase();
+  const isDurationQuestion = DURATION_QUESTION_RE.test(text);
+
+  const roleQuestion = detectRoleQuestion(text);
+  if (roleQuestion) {
+    const primary = EXPERIENCE.find((e) => e.status === "ACTIVE") || EXPERIENCE[0];
+    if (ROLE_TRUE.some((r) => roleQuestion.includes(r))) {
+      return { text: `Yes — Parth is a ${primary.role} at ${primary.company}.`, actions: [], intentId: "role-lookup" };
+    }
+    if (ROLE_PARTIAL.some((r) => roleQuestion.includes(r))) {
+      return { text: `Not his exact job title, but close — he's a ${primary.role} who also works hands-on with ML and GenAI.`, actions: [], intentId: "role-lookup" };
+    }
+    return { text: `Not quite — his current title is ${primary.role} at ${primary.company}, focused on data pipelines and cloud platforms.`, actions: [], intentId: "role-lookup" };
+  }
+
+  const expHit = findExperienceMention(text);
+
+  if (expHit && isDurationQuestion) {
+    const dur = formatMonths(jobDurationMonths(expHit));
+    return {
+      text: `Parth has been at ${expHit.company} for ${dur} — ${expHit.role} (${expHit.period}).`,
+      actions: [],
+      intentId: "duration-lookup",
+    };
+  }
+
+  if (!expHit && isDurationQuestion && /\b(experience|company|companies|tenure|job|work|nagarro|canara|hsbc)\b/.test(text)) {
+    const lines = EXPERIENCE.map((e) => `- ${e.company}: ${formatMonths(jobDurationMonths(e))} (${e.period})`);
+    const primary = EXPERIENCE.find((e) => e.status === "ACTIVE") || EXPERIENCE[0];
+    return {
+      text: `Company tenure:\n${lines.join("\n")}\n\nTotal full-time experience: ${formatMonths(jobDurationMonths(primary))}.`,
+      actions: [],
+      intentId: "duration-lookup",
+    };
+  }
 
   const skillHit = findSkillMention(text);
   if (skillHit) {
@@ -750,7 +838,6 @@ function matchChatIntent(input) {
       intentId: "project-lookup",
     };
   }
-  const expHit = findExperienceMention(text);
   if (expHit) {
     return {
       text: `${expHit.role} @ ${expHit.company} (${expHit.period})\n${expHit.bullets.map((b) => `- ${b}`).join("\n")}`,
