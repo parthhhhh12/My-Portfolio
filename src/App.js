@@ -83,7 +83,7 @@ const WHAT_I_BRING = [
   "Strong SQL & data modeling mindset (schema design, partitioning, format choices, performance).",
   "Cloud-native stack: Azure (ADF/ADLS/Blob) + Databricks + Snowflake + dbt + MLflow.",
   "ML integration: feature engineering pipelines, model deployment on Databricks, experiment tracking.",
-  "GenAI exploration: LLM workflows, RAG pipelines, and prompt engineering with Azure OpenAI.",
+  "GenAI exploration: LLM workflows, RAG pipelines, and prompt engineering.",
   "Quality-first: schema enforcement, clean layers, reproducible runs, orchestration-ready design.",
 ];
 
@@ -100,7 +100,7 @@ const EXPERIENCE = [
       "Designed and developed scalable data pipelines using Azure Synapse and Snowflake, enabling efficient ingestion and transformation of large-scale structured data.",
       "Implemented dbt-based transformation layers for staging and marts, ensuring modular, testable, and analytics-ready data models with strong data quality checks.",
     ],
-    tech: ["Azure Synapse", "Snowflake", "dbt", "SQL"],
+    tech: ["Azure Synapse", "Snowflake", "dbt", "Apache Airflow", "SQL"],
   },
   {
     role: "Cloud and DevOps Intern",
@@ -114,7 +114,7 @@ const EXPERIENCE = [
       "Built and automated CI/CD pipelines using Jenkins, Docker, and Terraform, integrating shell scripting to streamline deployments and environment setup.",
       "Managed AWS cloud services (EC2, S3) for infrastructure and storage, improving scalability, reliability, and operational efficiency.",
     ],
-    tech: ["Jenkins", "Docker", "Terraform", "AWS EC2", "AWS S3", "Shell Scripting"],
+    tech: ["Jenkins", "Docker", "Terraform", "AWS EC2", "AWS S3"],
   },
 ];
 
@@ -123,12 +123,11 @@ const SKILLS = [
   { name: "SQL", proficiency: "Advanced", description: "Joins, windows, modeling, optimization", key: "blue", category: "core", current: true },
   { name: "Java", proficiency: "Intermediate", description: "Core language fundamentals", key: "amber", category: "core" },
   { name: "PySpark", proficiency: "Intermediate", description: "DataFrames, transformations, partitions", key: "amber", category: "data" },
-  { name: "Microsoft Azure", proficiency: "Intermediate", description: "Synapse, ADF, ADLS, Blob, Azure OpenAI", key: "blue", category: "cloud", current: true },
+  { name: "Microsoft Azure", proficiency: "Intermediate", description: "Synapse, ADF, ADLS, Blob", key: "blue", category: "cloud", current: true },
   { name: "Databricks", proficiency: "Intermediate", description: "Notebooks, jobs, MLflow, cluster workflows", key: "pink", category: "data" },
   { name: "Snowflake", proficiency: "Intermediate", description: "Warehousing + analytics queries", key: "blue", category: "data", current: true },
   { name: "dbt", proficiency: "Intermediate", description: "Staging + marts, tests, docs, ELT patterns", key: "pink", category: "data", current: true },
   { name: "AWS", proficiency: "Intermediate", description: "EC2, S3 for infra + storage", key: "amber", category: "cloud" },
-  { name: "Kubernetes", proficiency: "Learning", description: "Container orchestration basics", key: "blue", category: "devops" },
   { name: "Terraform", proficiency: "Intermediate", description: "IaC for cloud environment setup", key: "green", category: "devops" },
   { name: "Docker", proficiency: "Intermediate", description: "Containerized deployments", key: "blue", category: "devops" },
   { name: "Jenkins", proficiency: "Intermediate", description: "CI/CD pipeline automation", key: "pink", category: "devops" },
@@ -136,7 +135,7 @@ const SKILLS = [
   { name: "Scikit-learn", proficiency: "Intermediate", description: "Model training + evaluation", key: "green", category: "ml" },
   { name: "MLflow", proficiency: "Intermediate", description: "Experiment tracking, model registry", key: "amber", category: "ml" },
   { name: "MLOps", proficiency: "Learning", description: "CI/CD for ML, model monitoring", key: "blue", category: "ml" },
-  { name: "Generative AI", proficiency: "Exploring", description: "LLMs, RAG, Azure OpenAI, prompt eng.", key: "pink", category: "genai" },
+  { name: "Generative AI", proficiency: "Exploring", description: "LLMs, RAG, prompt eng.", key: "pink", category: "genai" },
   { name: "Vector Databases", proficiency: "Exploring", description: "Embeddings + similarity search for RAG", key: "blue", category: "genai" },
   { name: "AI Agents", proficiency: "Exploring", description: "Agentic AI workflows + tool use", key: "pink", category: "genai" },
   { name: "Delta Lake", proficiency: "Intermediate", description: "Lakehouse concepts + ACID basics", key: "green", category: "data" },
@@ -161,6 +160,7 @@ const PRIMARY_INSTRUMENTS = [
   { name: "Snowflake", icon: <Cloud size={26} />, key: "blue" },
   { name: "dbt", icon: <Workflow size={26} />, key: "amber" },
   { name: "MLflow", icon: <Brain size={26} />, key: "green" },
+  { name: "Apache Airflow", icon: <Zap size={26} />, key: "blue" },
 ];
 
 const CAPABILITIES = [
@@ -176,7 +176,7 @@ const CAPABILITIES = [
   },
   {
     code: "OFR.03", title: "ML & GenAI Enablement",
-    desc: "I extend pipelines into ML territory: feature engineering, MLflow experiment tracking, and RAG/GenAI workflows with Azure OpenAI for smarter, LLM-assisted data systems.",
+    desc: "I extend pipelines into ML territory: feature engineering, MLflow experiment tracking, and RAG/GenAI workflows for smarter, LLM-assisted data systems.",
     key: "pink",
   },
 ];
@@ -233,7 +233,7 @@ const TIMELINE = [
   { year: "2025", title: "Built First Production Pipelines", desc: "Hands-on with PySpark, Databricks, Snowflake, dbt — end-to-end.", key: "green" },
   { year: "2025", title: "Databricks Certifications", desc: "Earned Data Engineer Associate + Generative AI Engineer Associate.", key: "amber" },
   { year: "2026", title: "ML & MLOps Integration", desc: "Extended pipelines into ML — feature stores, MLflow, model registry.", key: "green" },
-  { year: "2026", title: "Exploring Generative AI", desc: "RAG pipelines, Azure OpenAI, LLM integration in data workflows.", key: "pink" },
+  { year: "2026", title: "Exploring Generative AI", desc: "RAG pipelines, LLM integration in data workflows.", key: "pink" },
 ];
 
 const CONSOLE_LINES = [
@@ -575,7 +575,7 @@ function keywordHits(text, kw) {
    SKILLS / EXPERIENCE entries, so proficiency levels always stay accurate. */
 const SKILL_ALIASES = {
   "gen ai": "Generative AI", "genai": "Generative AI", "spark": "PySpark",
-  "azure": "Microsoft Azure", "ms azure": "Microsoft Azure", "k8s": "Kubernetes",
+  "azure": "Microsoft Azure", "ms azure": "Microsoft Azure",
   "vector db": "Vector Databases", "vector dbs": "Vector Databases", "agentic ai": "AI Agents",
 };
 const PROJECT_ALIASES = [
@@ -718,7 +718,7 @@ const CHAT_INTENTS = [
   {
     id: "genai",
     keywords: ["genai", "generative ai", "rag", "llm", "agent", "vector database", "ai agent"],
-    response: () => "Parth is extending his data pipelines into GenAI territory — RAG pipelines with Azure OpenAI, vector databases, and early AI-agent workflows. Still hands-on and actively growing here.",
+    response: () => "Parth is extending his data pipelines into GenAI territory — RAG pipelines, vector databases, and early AI-agent workflows. Still hands-on and actively growing here.",
   },
   {
     id: "location",
@@ -1903,8 +1903,8 @@ export default function App() {
             {[
               { icon: <Cloud size={22} />, title: "Cloud", items: ["Azure Synapse", "ADF", "ADLS Gen2", "AWS EC2/S3"], key: "blue" },
               { icon: <Database size={22} />, title: "Data Engineering", items: ["PySpark", "Databricks", "Delta Lake", "Airflow"], key: "green" },
-              { icon: <ShieldCheck size={22} />, title: "DevOps", items: ["Docker", "Jenkins", "Terraform", "Kubernetes"], key: "amber" },
-              { icon: <Sparkles size={22} />, title: "GenAI", items: ["Azure OpenAI", "RAG", "Vector DBs", "AI Agents"], key: "pink" },
+              { icon: <ShieldCheck size={22} />, title: "DevOps", items: ["Docker", "Jenkins", "Terraform"], key: "amber" },
+              { icon: <Sparkles size={22} />, title: "GenAI", items: ["RAG", "Vector DBs", "AI Agents"], key: "pink" },
             ].map((block, i) => (
               <motion.div key={block.title} variants={cardFade("up", i * 0.07)} onMouseMove={spotlight.onMouseMove} className="relative rounded-2xl p-5 text-center border card-hover spotlight-card overflow-hidden" style={cardStyle}>
                 <div className="relative z-10">
@@ -1973,10 +1973,10 @@ export default function App() {
                 </div>
                 <GlowText
                   as="p" className="text-sm leading-relaxed" style={{ color: theme.textSecondary }} radius={85} glowColor={theme.pink}
-                  text="RAG pipelines with Azure OpenAI, LLM-powered data quality checks, and integrating GenAI into ETL workflows for smarter transformations."
+                  text="RAG pipelines, LLM-powered data quality checks, and integrating GenAI into ETL workflows for smarter transformations."
                 />
                 <div className="mt-3 flex gap-2 flex-wrap font-mono">
-                  {["RAG", "Azure OpenAI", "LangChain", "Vector DBs"].map(t => (<span key={t} className="text-xs border px-2 py-0.5 rounded-full font-medium" style={{ background: theme.pink + "10", borderColor: theme.pink + "40", color: theme.pink }}>{t}</span>))}
+                  {["RAG", "LangChain", "Vector DBs"].map(t => (<span key={t} className="text-xs border px-2 py-0.5 rounded-full font-medium" style={{ background: theme.pink + "10", borderColor: theme.pink + "40", color: theme.pink }}>{t}</span>))}
                 </div>
               </div>
             </motion.div>
