@@ -8,6 +8,7 @@ import {
   CheckCircle2, ArrowUpRight, Layers, Terminal, Workflow, Command,
   Brain, Zap, Sparkles, TrendingUp, Code2, ArrowRight, X, Search,
   Rocket, Cpu, ShieldCheck, Radio, Sun, Moon, Copy, Check, Send, Bot,
+  GitBranch,
 } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
@@ -111,15 +112,15 @@ const EXPERIENCE = [
     status: "COMPLETED",
     key: "blue",
     bullets: [
-      "Built and automated CI/CD pipelines using Jenkins, Docker, and Terraform, integrating shell scripting to streamline deployments and environment setup.",
-      "Managed AWS cloud services (EC2, S3) for infrastructure and storage, improving scalability, reliability, and operational efficiency.",
+      "Built and automated CI/CD pipelines using Jenkins and Docker, streamlining deployments and environment setup.",
+      "Built and configured a secure AWS Virtual Private Cloud (VPC) and managed AWS cloud services (EC2, S3) for infrastructure and storage, improving scalability, reliability, and operational efficiency.",
     ],
-    tech: ["Jenkins", "Docker", "Terraform", "AWS EC2", "AWS S3"],
+    tech: ["Jenkins", "Docker", "AWS EC2", "AWS S3", "VPC"],
   },
 ];
 
 const SKILLS = [
-  { name: "Python", proficiency: "Advanced", description: "ETL scripting + ML + data processing", key: "green", category: "core" },
+  { name: "Python", proficiency: "Intermediate", description: "ETL scripting + ML + data processing", key: "green", category: "core" },
   { name: "SQL", proficiency: "Advanced", description: "Joins, windows, modeling, optimization", key: "blue", category: "core", current: true },
   { name: "Java", proficiency: "Intermediate", description: "Core language fundamentals", key: "amber", category: "core" },
   { name: "PySpark", proficiency: "Intermediate", description: "DataFrames, transformations, partitions", key: "amber", category: "data" },
@@ -128,11 +129,9 @@ const SKILLS = [
   { name: "Snowflake", proficiency: "Intermediate", description: "Warehousing + analytics queries", key: "blue", category: "data", current: true },
   { name: "dbt", proficiency: "Intermediate", description: "Staging + marts, tests, docs, ELT patterns", key: "pink", category: "data", current: true },
   { name: "AWS", proficiency: "Intermediate", description: "EC2, S3 for infra + storage", key: "amber", category: "cloud" },
-  { name: "Terraform", proficiency: "Intermediate", description: "IaC for cloud environment setup", key: "green", category: "devops" },
   { name: "Docker", proficiency: "Intermediate", description: "Containerized deployments", key: "blue", category: "devops" },
   { name: "Jenkins", proficiency: "Intermediate", description: "CI/CD pipeline automation", key: "pink", category: "devops" },
-  { name: "Airflow", proficiency: "Learning", description: "Workflow orchestration", key: "amber", category: "data" },
-  { name: "Scikit-learn", proficiency: "Intermediate", description: "Model training + evaluation", key: "green", category: "ml" },
+  { name: "Airflow", proficiency: "Intermediate", description: "Workflow orchestration", key: "amber", category: "data", current: true },
   { name: "MLflow", proficiency: "Intermediate", description: "Experiment tracking, model registry", key: "amber", category: "ml" },
   { name: "MLOps", proficiency: "Learning", description: "CI/CD for ML, model monitoring", key: "blue", category: "ml" },
   { name: "Generative AI", proficiency: "Exploring", description: "LLMs, RAG, prompt eng.", key: "pink", category: "genai" },
@@ -232,7 +231,7 @@ const TIMELINE = [
   { year: "2024", title: "Started Data Engineering Journey", desc: "Dove deep into SQL, Python, and cloud fundamentals on Azure.", key: "blue" },
   { year: "2025", title: "Built First Production Pipelines", desc: "Hands-on with PySpark, Databricks, Snowflake, dbt — end-to-end.", key: "green" },
   { year: "2025", title: "Databricks Certifications", desc: "Earned Data Engineer Associate + Generative AI Engineer Associate.", key: "amber" },
-  { year: "2026", title: "ML & MLOps Integration", desc: "Extended pipelines into ML — feature stores, MLflow, model registry.", key: "green" },
+  { year: "2026", title: "ML & DataOps Integration", desc: "Extended pipelines into ML — feature stores, MLflow, model registry.", key: "green" },
   { year: "2026", title: "Exploring Generative AI", desc: "RAG pipelines, LLM integration in data workflows.", key: "pink" },
 ];
 
@@ -577,6 +576,7 @@ const SKILL_ALIASES = {
   "gen ai": "Generative AI", "genai": "Generative AI", "spark": "PySpark",
   "azure": "Microsoft Azure", "ms azure": "Microsoft Azure",
   "vector db": "Vector Databases", "vector dbs": "Vector Databases", "agentic ai": "AI Agents",
+  "apache airflow": "Airflow",
 };
 const PROJECT_ALIASES = [
   ["synapse pipeline", "snowflake pipeline", "reconciliation", "raw clean error", "adls", "dbt pipeline", "synapse project"],
@@ -587,7 +587,7 @@ const EXPERIENCE_ALIASES = [["nagarro"], ["canara", "hsbc", "devops intern", "cl
 /* Pre-trained knowledge base — every recognized topic about Parth's
    profile, built as a *layered* matcher rather than one flat keyword list:
    1) specific skill/project/company mentions are resolved first, straight
-      from SKILLS/PROJECTS/EXPERIENCE — this alone covers all 21 skills,
+      from SKILLS/PROJECTS/EXPERIENCE — this alone covers all skills,
       both case studies, and both jobs individually, and can never drift
       out of sync with the rest of the site since it reads the same arrays.
    2) broader FAQ intents (below) catch everything else — greetings,
@@ -781,7 +781,7 @@ const CHAT_INTENTS = [
    question a recruiter asks ("is Parth a data engineer?") and the one the
    entity/keyword lookups below don't cover on their own, since "data
    engineer" is a job title, not a skill name or company. */
-const ROLE_TRUE = ["data engineer", "ai data engineer", "data and ai engineer", "cloud engineer", "pipeline engineer"];
+const ROLE_TRUE = ["data engineer", "ai data engineer", "data and ai engineer", "cloud engineer", "pipeline engineer", "dataops engineer"];
 const ROLE_PARTIAL = ["ai engineer", "ml engineer", "machine learning engineer", "genai engineer", "devops engineer", "cloud and devops engineer"];
 function detectRoleQuestion(text) {
   const m = text.match(/\bis\s+(?:he|parth)\s+an?\s+([a-z][a-z\s-]*?)\s*\??$/);
@@ -1692,7 +1692,7 @@ export default function App() {
             </motion.h1>
 
             <motion.div className="mt-3 text-lg sm:text-2xl md:text-3xl font-bold h-9 flex items-center justify-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-              <TypingText texts={["AI Data Engineer", "AI/ML Practitioner", "Pipeline Architect"]} />
+              <TypingText texts={["AI Data Engineer", "DataOps Engineer", "Pipeline Architect"]} />
             </motion.div>
 
             <motion.p className="mt-4 max-w-2xl mx-auto" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
@@ -1740,7 +1740,7 @@ export default function App() {
           <div className="flex whitespace-nowrap marquee-track font-mono text-xs sm:text-sm tracking-widest" style={{ color: theme.textMuted }}>
             {[...Array(2)].map((_, rep) => (
               <React.Fragment key={rep}>
-                {["AZURE", "DATABRICKS", "SNOWFLAKE", "DBT", "PYSPARK", "MLFLOW", "PYTHON", "SQL", "DELTA LAKE", "GENAI", "1M+ ROWS", "TERRAFORM"].map((t, i) => (
+                {["AZURE", "DATABRICKS", "SNOWFLAKE", "DBT", "PYSPARK", "MLFLOW", "PYTHON", "SQL", "DELTA LAKE", "GENAI", "1M+ ROWS", "AIRFLOW"].map((t, i) => (
                   <span key={t + rep + i} className="mx-4 flex items-center gap-4">{t} <span style={{ color: theme.green }}>{"//"}</span></span>
                 ))}
               </React.Fragment>
@@ -1756,7 +1756,7 @@ export default function App() {
                 <h3 className="font-bold text-lg mb-3 flex items-center gap-2 font-mono relative z-10" style={{ color: theme.blue }}><Target size={16} /> profile.summary</h3>
                 <GlowText
                   as="p" className="text-base leading-relaxed relative z-10" style={{ color: theme.textSecondary }} glowColor={theme.blue}
-                  text="Data and AI Engineer with hands-on experience building scalable data pipelines and integrating machine learning and MLOps practices into data workflows. Currently a Data Engineer at Nagarro, working with Azure Synapse, Snowflake, and dbt. Skilled in the modern data stack and cloud platforms, with growing expertise in Generative AI and Agentic AI — RAG, Vector Databases, and AI Agents. I care about clean data layers, schema enforcement, and analytics-ready outputs."
+                  text="Data and AI Engineer with hands-on experience building scalable data pipelines and integrating machine learning and MLOps practices into data workflows. Currently a Data Engineer at Nagarro, working with Azure Synapse, Snowflake, dbt, and Apache Airflow. Skilled in the modern data stack and cloud platforms, with growing expertise in Generative AI and Agentic AI — RAG, Vector Databases, and AI Agents. I care about clean data layers, schema enforcement, and analytics-ready outputs."
                 />
               </motion.div>
               <motion.div variants={cardFade("up", 0.07)} onMouseMove={spotlight.onMouseMove} className="rounded-2xl p-6 border card-hover spotlight-card relative overflow-hidden" style={cardStyle}>
@@ -1902,8 +1902,8 @@ export default function App() {
           <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4" initial="hidden" whileInView="show" variants={containerStagger} viewport={{ once: true }}>
             {[
               { icon: <Cloud size={22} />, title: "Cloud", items: ["Azure Synapse", "ADF", "ADLS Gen2", "AWS EC2/S3"], key: "blue" },
-              { icon: <Database size={22} />, title: "Data Engineering", items: ["PySpark", "Databricks", "Delta Lake", "Airflow"], key: "green" },
-              { icon: <ShieldCheck size={22} />, title: "DevOps", items: ["Docker", "Jenkins", "Terraform"], key: "amber" },
+              { icon: <Database size={22} />, title: "Data Engineering", items: ["PySpark", "Databricks", "Airflow", "Snowflake", "dbt"], key: "green" },
+              { icon: <ShieldCheck size={22} />, title: "DevOps", items: ["Docker", "Jenkins", "Git/GitLab"], key: "amber" },
               { icon: <Sparkles size={22} />, title: "GenAI", items: ["RAG", "Vector DBs", "AI Agents"], key: "pink" },
             ].map((block, i) => (
               <motion.div key={block.title} variants={cardFade("up", i * 0.07)} onMouseMove={spotlight.onMouseMove} className="relative rounded-2xl p-5 text-center border card-hover spotlight-card overflow-hidden" style={cardStyle}>
@@ -1955,7 +1955,7 @@ export default function App() {
                 <div className="relative z-10">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2 font-mono" style={{ color: theme.blue }}><Briefcase size={16} /> target.roles</h3>
                   <div className="flex flex-wrap gap-2">
-                    {["Data and AI Engineer", "Data and AI Architect", "AI Platform Engineer", "AI Infrastructure Engineer"].map((r, i) => {
+                    {["Data and AI Engineer", "DataOps Engineer", "AI Platform Engineer", "AI Infrastructure Engineer"].map((r, i) => {
                       const keys = ["blue", "green", "amber", "pink"];
                       const c = theme[keys[i % 4]];
                       return (
@@ -1973,7 +1973,7 @@ export default function App() {
                 </div>
                 <GlowText
                   as="p" className="text-sm leading-relaxed" style={{ color: theme.textSecondary }} radius={85} glowColor={theme.pink}
-                  text="RAG pipelines, LLM-powered data quality checks, and integrating GenAI into ETL workflows for smarter transformations."
+                  text="RAG pipelines, LLM-powered data quality checks, and integrating GenAI into ELT/ETL workflows for smarter transformation."
                 />
                 <div className="mt-3 flex gap-2 flex-wrap font-mono">
                   {["RAG", "LangChain", "Vector DBs"].map(t => (<span key={t} className="text-xs border px-2 py-0.5 rounded-full font-medium" style={{ background: theme.pink + "10", borderColor: theme.pink + "40", color: theme.pink }}>{t}</span>))}
