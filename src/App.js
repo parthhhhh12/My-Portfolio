@@ -8,7 +8,6 @@ import {
   CheckCircle2, ArrowUpRight, Layers, Terminal, Workflow, Command,
   Brain, Zap, Sparkles, TrendingUp, Code2, ArrowRight, X, Search,
   Rocket, Cpu, ShieldCheck, Radio, Sun, Moon, Copy, Check, Send, Bot,
-  GitBranch,
 } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
@@ -113,7 +112,7 @@ const EXPERIENCE = [
     key: "blue",
     bullets: [
       "Built and automated CI/CD pipelines using Jenkins and Docker, streamlining deployments and environment setup.",
-      "Built and configured a secure AWS Virtual Private Cloud (VPC) and managed AWS cloud services (EC2, S3) for infrastructure and storage, improving scalability, reliability, and operational efficiency.",
+      "Managed AWS cloud services (EC2, S3) for infrastructure and storage, improving scalability, reliability, and operational efficiency.",
     ],
     tech: ["Jenkins", "Docker", "AWS EC2", "AWS S3", "VPC"],
   },
