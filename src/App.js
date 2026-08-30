@@ -1,4 +1,4 @@
-// src/App.jsx
+ // src/App.jsx
 import React, {
   createContext, useContext, useEffect, useMemo, useRef, useState, useCallback,
 } from "react";
@@ -79,12 +79,12 @@ const QUICK_PROOF = [
 ];
 
 const WHAT_I_BRING = [
-  "End-to-end pipeline development: ingestion → transformation → curated datasets → analytics + ML outputs.",
-  "Strong SQL & data modeling mindset (schema design, partitioning, format choices, performance).",
-  "Cloud-native stack: Azure (ADF/ADLS/Blob) + Databricks + Snowflake + dbt + MLflow.",
-  "ML integration: feature engineering pipelines, model deployment on Databricks, experiment tracking.",
-  "GenAI exploration: LLM workflows, RAG pipelines, and prompt engineering.",
-  "Quality-first: schema enforcement, clean layers, reproducible runs, orchestration-ready design.",
+  "Designing scalable ETL/ELT pipelines across Azure, Databricks, and Snowflake.",
+  "Writing efficient, production-grade code in Python, PySpark, and SQL.",
+  "Building and orchestrating workflows with dbt and Apache Airflow.",
+  "Translating raw, messy data into clean, business-ready datasets.",
+  "Applying strong fundamentals in data modeling, performance tuning, and pipeline reliability.",
+  "Extending data infrastructure into ML, MLOps, and GenAI — RAG pipelines, vector databases, and prompt engineering.",
 ];
 
 const EXPERIENCE = [
@@ -1670,7 +1670,7 @@ export default function App() {
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: theme.green }} /> STATUS: OPEN_TO_OPPORTUNITIES
             </motion.div>
             <motion.p className="text-xs font-mono uppercase tracking-widest mb-4" style={{ color: theme.textMuted }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.08 }}>
-              currently shipping // Data Engineer @ Nagarro
+              Data Engineer · 1+ Years Experience · Azure · Snowflake · dbt
             </motion.p>
 
             <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }} className="mb-5">
@@ -1691,12 +1691,12 @@ export default function App() {
             </motion.h1>
 
             <motion.div className="mt-3 text-lg sm:text-2xl md:text-3xl font-bold h-9 flex items-center justify-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-              <TypingText texts={["AI Data Engineer", "DataOps Engineer", "Pipeline Architect"]} />
+              <TypingText texts={["Data Engineer", "AI Data Engineer", "Pipeline Architect"]} />
             </motion.div>
 
             <motion.p className="mt-4 max-w-2xl mx-auto" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
               <GlowText
-                text="I build scalable data pipelines, ML-integrated workflows, and GenAI-powered solutions using cloud-native tools — from raw ingestion to model deployment, end to end."
+                text="I build data systems that don't just store and move data — they think. Cloud-native ETL/ELT pipelines across Azure, Databricks, and Snowflake, engineered with Python, PySpark, SQL, dbt, and Airflow — turning raw data into something businesses can actually act on."
                 as="span" className="text-base sm:text-lg leading-relaxed" style={{ color: theme.textSecondary }} radius={100}
               />
             </motion.p>
@@ -1755,7 +1755,7 @@ export default function App() {
                 <h3 className="font-bold text-lg mb-3 flex items-center gap-2 font-mono relative z-10" style={{ color: theme.blue }}><Target size={16} /> profile.summary</h3>
                 <GlowText
                   as="p" className="text-base leading-relaxed relative z-10" style={{ color: theme.textSecondary }} glowColor={theme.blue}
-                  text="Data and AI Engineer with hands-on experience building scalable data pipelines and integrating machine learning and MLOps practices into data workflows. Currently a Data Engineer at Nagarro, working with Azure Synapse, Snowflake, dbt, and Apache Airflow. Skilled in the modern data stack and cloud platforms, with growing expertise in Generative AI and Agentic AI — RAG, Vector Databases, and AI Agents. I care about clean data layers, schema enforcement, and analytics-ready outputs."
+                  text="Data Engineer with 1+ years of experience building cloud-native, scalable data platforms on Microsoft Azure, Databricks, and Snowflake. I design and build ETL/ELT pipelines that are reliable, high-performance, and production-grade — using Python, PySpark, SQL, dbt, and Apache Airflow to turn raw, messy data into business-ready datasets. I'm extending this foundation into Machine Learning, MLOps, and Generative AI — RAG pipelines, vector databases, and prompt engineering — connecting solid data infrastructure with applied AI systems. Data engineering is the backbone of every AI system, and I'm here to build that backbone right."
                 />
               </motion.div>
               <motion.div variants={cardFade("up", 0.07)} onMouseMove={spotlight.onMouseMove} className="rounded-2xl p-6 border card-hover spotlight-card relative overflow-hidden" style={cardStyle}>
@@ -1972,7 +1972,7 @@ export default function App() {
                 </div>
                 <GlowText
                   as="p" className="text-sm leading-relaxed" style={{ color: theme.textSecondary }} radius={85} glowColor={theme.pink}
-                  text="RAG pipelines, LLM-powered data quality checks, and integrating GenAI into ELT/ETL workflows for smarter transformation."
+                  text="RAG pipelines, LLM-powered data quality checks, vector databases, and prompt engineering — connecting solid data infrastructure with applied AI systems."
                 />
                 <div className="mt-3 flex gap-2 flex-wrap font-mono">
                   {["RAG", "LangChain", "Vector DBs"].map(t => (<span key={t} className="text-xs border px-2 py-0.5 rounded-full font-medium" style={{ background: theme.pink + "10", borderColor: theme.pink + "40", color: theme.pink }}>{t}</span>))}
@@ -2081,7 +2081,7 @@ export default function App() {
             <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="space-y-4">
               <GlowText
                 as="p" className="text-base leading-relaxed" style={{ color: theme.textSecondary }} radius={100}
-                text="I'm currently building at Nagarro, and always open to interesting conversations around cloud-native data engineering, ML pipeline design, and GenAI. If you're building a modern data team — let's talk."
+                text="I'm currently building at Nagarro, and always open to interesting conversations around cloud-native data engineering, ETL/ELT pipeline design, and GenAI. If you're building a modern data team — let's talk. Data engineering is the backbone of every AI system, and I'm here to build that backbone right."
               />
               {[
                 { icon: <Mail size={16} />, label: "parthsingh1253@gmail.com", href: "mailto:parthsingh1253@gmail.com", key: "blue", copyable: true },
