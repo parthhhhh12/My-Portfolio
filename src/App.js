@@ -1,4 +1,4 @@
- // src/App.jsx
+// src/App.jsx
 import React, {
   createContext, useContext, useEffect, useMemo, useRef, useState, useCallback,
 } from "react";
@@ -95,6 +95,7 @@ const EXPERIENCE = [
     period: "Jul 2025 – Present",
     start: "2025-07-01", end: null,
     status: "ACTIVE",
+    employmentType: "Full-time",
     key: "green",
     bullets: [
       "Designed and developed scalable data pipelines using Azure Synapse and Snowflake, enabling efficient ingestion and transformation of large-scale structured data.",
@@ -107,8 +108,9 @@ const EXPERIENCE = [
     company: "Canara HSBC Life Insurance Company",
     location: "Gurugram",
     period: "Jul 2024 – Aug 2024",
-    start: "2024-07-01", end: "2024-08-31",
+    start: "2024-07-01", end: "2024-09-01",
     status: "COMPLETED",
+    employmentType: "Internship",
     key: "blue",
     bullets: [
       "Built and automated CI/CD pipelines using Jenkins and Docker, streamlining deployments and environment setup.",
@@ -226,12 +228,15 @@ const PROJECTS = [
   },
 ];
 
-const TIMELINE = [
-  { year: "2024", title: "Started Data Engineering Journey", desc: "Dove deep into SQL, Python, and cloud fundamentals on Azure.", key: "blue" },
-  { year: "2025", title: "Built First Production Pipelines", desc: "Hands-on with PySpark, Databricks, Snowflake, dbt — end-to-end.", key: "green" },
-  { year: "2025", title: "Databricks Certifications", desc: "Earned Data Engineer Associate + Generative AI Engineer Associate.", key: "amber" },
-  { year: "2026", title: "ML & DataOps Integration", desc: "Extended pipelines into ML — feature stores, MLflow, model registry.", key: "green" },
-  { year: "2026", title: "Exploring Generative AI", desc: "RAG pipelines, LLM integration in data workflows.", key: "pink" },
+/* Single source of truth for certifications — the Stage 06 cards, the hero
+   stat tile count, and the chatbot's "certifications" answer all read from
+   this one array, so adding/removing a credential here automatically stays
+   in sync everywhere else on the site (no more editing a count by hand). */
+const CERTIFICATIONS = [
+  { href: "https://credentials.databricks.com/80290364-9760-4912-80bb-628ecb05f2d6#acc.1QyUwPgn", icon: <Award size={22} />, title: "Databricks Certified", sub: "Data Engineer Associate", key: "red" },
+  { href: "https://credentials.databricks.com/e77bcf6d-f559-47e7-beca-608373a5660b#acc.mVhSLHf9", icon: <Sparkles size={22} />, title: "Databricks Certified", sub: "Generative AI Engineer Associate", key: "pink" },
+  { href: "https://www.hackerrank.com/certificates/731721820af3", icon: <ShieldCheck size={22} />, title: "HackerRank SQL", sub: "Advanced", key: "green" },
+  { href: "https://www.hackerrank.com/certificates/6f58d3da3e47", icon: <ShieldCheck size={22} />, title: "HackerRank SQL", sub: "Intermediate", key: "blue" },
 ];
 
 const CONSOLE_LINES = [
@@ -646,6 +651,18 @@ function formatMonths(totalMonths) {
    full descriptive answer. */
 const DURATION_QUESTION_RE = /\bhow (many|much|long)\b|\bin (years|months)\b|\bduration\b|\btenure\b/;
 
+/* Decimal-years version of the same real date arithmetic, used anywhere the
+   UI needs a single live number (hero stat tile, subtitle, profile summary)
+   instead of a "X years Y months" sentence. Same source of truth as
+   jobDurationMonths, so the two can never drift apart or need separate edits
+   as time passes. */
+function calcExperienceYears(startDateStr, endDateStr) {
+  const start = new Date(startDateStr);
+  const end = endDateStr ? new Date(endDateStr) : new Date();
+  const diffMs = end.getTime() - start.getTime();
+  return Math.max(diffMs / (1000 * 60 * 60 * 24 * 365.25), 0);
+}
+
 const CHAT_INTENTS = [
   {
     id: "greeting",
@@ -663,14 +680,14 @@ const CHAT_INTENTS = [
   {
     id: "experience",
     keywords: ["experience", "work history", "job", "career", "background", "resume history"],
-    response: () => `Parth's work history:\n${EXPERIENCE.map((e) => `- ${e.role} @ ${e.company} (${e.period})`).join("\n")}\n\nHe's currently shipping data pipelines at Nagarro. Ask about a specific company for more detail.`,
+    response: () => `Parth's work history:\n${EXPERIENCE.map((e) => `- ${e.role} @ ${e.company} — ${e.employmentType} (${e.period})`).join("\n")}\n\nHe's currently shipping data pipelines at Nagarro, full-time. Ask about a specific company for more detail.`,
   },
   {
     id: "role",
     keywords: ["job title", "his role", "his title", "what does he do", "current position", "what kind of engineer", "what is his role", "what is he", "current role"],
     response: () => {
       const primary = EXPERIENCE.find((e) => e.status === "ACTIVE") || EXPERIENCE[0];
-      return `Parth's current title is ${primary.role} at ${primary.company}. He builds data pipelines and cloud data platforms, and is extending into ML/GenAI.`;
+      return `Parth's current title is ${primary.role} at ${primary.company} — a ${primary.employmentType.toLowerCase()} role. He builds data pipelines and cloud data platforms, and is extending into ML/GenAI.`;
     },
   },
   {
@@ -681,9 +698,14 @@ const CHAT_INTENTS = [
       const intern = EXPERIENCE.find((e) => e.status !== "ACTIVE");
       const primaryDur = formatMonths(jobDurationMonths(primary));
       const internDur = intern ? formatMonths(jobDurationMonths(intern)) : null;
-      return `About ${primaryDur} of full-time experience as a ${primary.role} at ${primary.company} (since ${primary.period.split(" – ")[0]})` +
-        (internDur ? `, plus a ${internDur} Cloud & DevOps internship at Canara HSBC in 2024.` : ".");
+      return `About ${primaryDur} of ${primary.employmentType.toLowerCase()} experience as a ${primary.role} at ${primary.company} (since ${primary.period.split(" – ")[0]})` +
+        (intern ? `, plus a ${internDur} ${intern.employmentType.toLowerCase()} as ${intern.role} at ${intern.company} (${intern.period}).` : ".");
     },
+  },
+  {
+    id: "employment-type",
+    keywords: ["full time", "full-time", "part time", "contract role", "employment type", "permanent role"],
+    response: () => `Employment breakdown:\n${EXPERIENCE.map((e) => `- ${e.company}: ${e.employmentType} (${e.role}, ${e.period})`).join("\n")}`,
   },
   {
     id: "projects",
@@ -707,7 +729,7 @@ const CHAT_INTENTS = [
   {
     id: "certifications",
     keywords: ["certificat", "certified", "credential", "databricks cert", "hackerrank"],
-    response: () => "Certifications:\n- Databricks Certified Data Engineer Associate\n- Databricks Certified Generative AI Engineer Associate\n- HackerRank SQL Advanced",
+    response: () => `Certifications (${CERTIFICATIONS.length}):\n${CERTIFICATIONS.map((c) => `- ${c.title} — ${c.sub}`).join("\n")}`,
   },
   {
     id: "education",
@@ -808,14 +830,14 @@ function matchChatIntent(input) {
   if (expHit && isDurationQuestion) {
     const dur = formatMonths(jobDurationMonths(expHit));
     return {
-      text: `Parth has been at ${expHit.company} for ${dur} — ${expHit.role} (${expHit.period}).`,
+      text: `Parth has been at ${expHit.company} for ${dur} — ${expHit.role}, ${expHit.employmentType} (${expHit.period}).`,
       actions: [],
       intentId: "duration-lookup",
     };
   }
 
   if (!expHit && isDurationQuestion && /\b(experience|company|companies|tenure|job|work|nagarro|canara|hsbc)\b/.test(text)) {
-    const lines = EXPERIENCE.map((e) => `- ${e.company}: ${formatMonths(jobDurationMonths(e))} (${e.period})`);
+    const lines = EXPERIENCE.map((e) => `- ${e.company}: ${formatMonths(jobDurationMonths(e))} · ${e.employmentType} (${e.period})`);
     const primary = EXPERIENCE.find((e) => e.status === "ACTIVE") || EXPERIENCE[0];
     return {
       text: `Company tenure:\n${lines.join("\n")}\n\nTotal full-time experience: ${formatMonths(jobDurationMonths(primary))}.`,
@@ -839,7 +861,7 @@ function matchChatIntent(input) {
   }
   if (expHit) {
     return {
-      text: `${expHit.role} @ ${expHit.company} (${expHit.period})\n${expHit.bullets.map((b) => `- ${b}`).join("\n")}`,
+      text: `${expHit.role} @ ${expHit.company} — ${expHit.employmentType} (${expHit.period})\n${expHit.bullets.map((b) => `- ${b}`).join("\n")}`,
       actions: [],
       intentId: "experience-lookup",
     };
@@ -1265,7 +1287,7 @@ function TypingText({ texts }) {
 /* ============================
    Stat tile
    ============================ */
-function StatTile({ value, label, colorKey }) {
+function StatTile({ value, label, colorKey, decimals = 0, title }) {
   const theme = useTheme();
   const color = theme[colorKey];
   const [count, setCount] = useState(0);
@@ -1281,19 +1303,23 @@ function StatTile({ value, label, colorKey }) {
 
   useEffect(() => {
     if (!visible) return;
-    const num = parseInt(value);
+    const num = parseFloat(value);
+    const multiplier = Math.pow(10, decimals);
+    const target = Math.round(num * multiplier);
     let start = 0;
-    const step = Math.ceil(num / 36);
-    const timer = setInterval(() => { start += step; if (start >= num) { setCount(num); clearInterval(timer); } else setCount(start); }, 28);
+    const step = Math.max(Math.ceil(target / 36), 1);
+    const timer = setInterval(() => { start += step; if (start >= target) { setCount(target); clearInterval(timer); } else setCount(start); }, 28);
     return () => clearInterval(timer);
-  }, [visible, value]);
+  }, [visible, value, decimals]);
+
+  const display = decimals > 0 ? (count / Math.pow(10, decimals)).toFixed(decimals) : count;
 
   return (
-    <div ref={ref} onMouseMove={spotlight.onMouseMove} className="rounded-lg border px-4 py-3 text-left spotlight-card relative overflow-hidden" style={{ background: theme.cardBg, borderColor: theme.cardBorder }}>
+    <div ref={ref} onMouseMove={spotlight.onMouseMove} title={title} className="rounded-lg border px-4 py-3 text-left spotlight-card relative overflow-hidden" style={{ background: theme.cardBg, borderColor: theme.cardBorder }}>
       <div className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-widest relative z-10" style={{ color: theme.textMuted }}>
         <span className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />{label}
       </div>
-      <div className="text-2xl sm:text-3xl font-bold font-mono mt-1 relative z-10" style={{ color }}>{count}{value.includes("+") ? "+" : ""}</div>
+      <div className="text-2xl sm:text-3xl font-bold font-mono mt-1 relative z-10" style={{ color }}>{display}{value.includes("+") ? "+" : ""}</div>
     </div>
   );
 }
@@ -1441,6 +1467,24 @@ function UptimeTicker() {
 }
 
 /* ============================
+   Live experience ticker — shows real elapsed time on the job (years,
+   months, days), recomputed from EXPERIENCE[].start on an interval so it
+   never needs a manual bump. Sits in the nav next to the uptime ticker.
+   ============================ */
+function ExperienceTicker({ years }) {
+  const theme = useTheme();
+  const totalDays = years * 365.25;
+  const y = Math.floor(totalDays / 365.25);
+  const m = Math.floor((totalDays - y * 365.25) / 30.4368);
+  return (
+    <span className="hidden lg:flex items-center gap-1.5 text-xs font-mono" style={{ color: theme.textMuted }}>
+      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: theme.blue }} />
+      exp {y}y {m}m
+    </span>
+  );
+}
+
+/* ============================
    MAIN APP
    ============================ */
 export default function App() {
@@ -1459,6 +1503,19 @@ export default function App() {
 
   const sectionRefs = useRef({});
   const sectionIds = useMemo(() => SECTION_IDS, []);
+
+  /* Total full-time experience, computed live from EXPERIENCE's active-job
+     start date rather than hardcoded — this grows automatically every time
+     the page loads, and re-ticks hourly for long-lived tabs, so "1.3 yrs"
+     today becomes "1.4 yrs" next month with zero manual edits ever needed. */
+  const primaryJob = useMemo(() => EXPERIENCE.find((e) => e.status === "ACTIVE") || EXPERIENCE[0], []);
+  const [yearsExp, setYearsExp] = useState(() => calcExperienceYears(primaryJob.start, primaryJob.end));
+  useEffect(() => {
+    const timer = setInterval(() => setYearsExp(calcExperienceYears(primaryJob.start, primaryJob.end)), 1000 * 60 * 60);
+    return () => clearInterval(timer);
+  }, [primaryJob]);
+  const yearsExpLabel = yearsExp.toFixed(1);
+  const yearsExpTooltip = `${formatMonths(jobDurationMonths(primaryJob))} at ${primaryJob.company} (since ${primaryJob.period.split(" – ")[0]})`;
 
   useEffect(() => {
     const stage = STAGES.find(s => s.id === activeSection);
@@ -1609,6 +1666,7 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-2.5">
+                <ExperienceTicker years={yearsExp} />
                 <UptimeTicker />
                 <motion.button onClick={() => setPaletteOpen(true)}
                   className="hidden sm:flex items-center gap-1.5 text-xs font-mono px-2.5 py-1.5 rounded-lg border" style={{ borderColor: theme.cardBorder, color: theme.textMuted }}
@@ -1670,7 +1728,7 @@ export default function App() {
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: theme.green }} /> STATUS: OPEN_TO_OPPORTUNITIES
             </motion.div>
             <motion.p className="text-xs font-mono uppercase tracking-widest mb-4" style={{ color: theme.textMuted }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.08 }}>
-              Data Engineer · 1+ Years Experience · Azure · Snowflake · dbt
+              {`Data Engineer · ${yearsExpLabel}+ Years Experience · Azure · Snowflake · dbt`}
             </motion.p>
 
             <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }} className="mb-5">
@@ -1710,10 +1768,10 @@ export default function App() {
             </motion.div>
 
             <motion.div className="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-2xl mx-auto" initial="hidden" animate="show" variants={containerStagger}>
-              <StatTile value="1" label="rows_processed_m" colorKey="blue" />
-              <StatTile value="3" label="certifications" colorKey="amber" />
+              <StatTile value={yearsExpLabel} label="years_experience" colorKey="blue" decimals={1} title={yearsExpTooltip} />
+              <StatTile value={String(CERTIFICATIONS.length)} label="certifications" colorKey="amber" />
               <StatTile value="5" label="pipelines_shipped" colorKey="green" />
-              <StatTile value="12" label="stack_size" colorKey="pink" />
+              <StatTile value={String(SKILLS.length)} label="stack_size" colorKey="pink" />
             </motion.div>
 
             <motion.div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center items-center" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
@@ -1749,54 +1807,29 @@ export default function App() {
 
         {/* ===== 01 · ABOUT (INGEST) ===== */}
         <StageShell id="about">
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
-            <motion.div className="space-y-4" initial="hidden" whileInView="show" variants={containerStagger} viewport={{ once: true }}>
-              <motion.div variants={cardFade("up")} onMouseMove={spotlight.onMouseMove} className="rounded-2xl p-6 border card-hover spotlight-card relative overflow-hidden" style={cardStyle}>
-                <h3 className="font-bold text-lg mb-3 flex items-center gap-2 font-mono relative z-10" style={{ color: theme.blue }}><Target size={16} /> profile.summary</h3>
-                <GlowText
-                  as="p" className="text-base leading-relaxed relative z-10" style={{ color: theme.textSecondary }} glowColor={theme.blue}
-                  text="Data Engineer with 1+ years of experience building cloud-native, scalable data platforms on Microsoft Azure, Databricks, and Snowflake. I design and build ETL/ELT pipelines that are reliable, high-performance, and production-grade — using Python, PySpark, SQL, dbt, and Apache Airflow to turn raw, messy data into business-ready datasets. I'm extending this foundation into Machine Learning, MLOps, and Generative AI — RAG pipelines, vector databases, and prompt engineering — connecting solid data infrastructure with applied AI systems. Data engineering is the backbone of every AI system, and I'm here to build that backbone right."
-                />
-              </motion.div>
-              <motion.div variants={cardFade("up", 0.07)} onMouseMove={spotlight.onMouseMove} className="rounded-2xl p-6 border card-hover spotlight-card relative overflow-hidden" style={cardStyle}>
-                <h3 className="font-bold text-lg mb-3 flex items-center gap-2 font-mono relative z-10" style={{ color: theme.green }}><BookOpen size={16} /> education.log</h3>
-                <p className="font-bold text-base relative z-10" style={{ color: theme.text }}>B.Tech in Computer Science Engineering</p>
-                <p className="text-base relative z-10" style={{ color: theme.textSecondary }}>University of Petroleum and Energy Studies, Dehradun</p>
-                <p className="text-base mt-1 font-semibold relative z-10" style={{ color: theme.pink }}>Specialization: Cloud Computing and DevOps</p>
-                <p className="text-xs mt-2 font-mono relative z-10" style={{ color: theme.textMuted }}>Aug 2021 – Jun 2025 · Grade: A</p>
-              </motion.div>
-              <motion.div variants={cardFade("up", 0.1)} className="rounded-2xl p-4 border flex flex-wrap gap-2.5" style={cardStyle}>
-                {QUICK_PROOF.map(p => (
-                  <div key={p.value} className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm" style={{ borderColor: theme.cardBorder, color: theme.textSecondary }}>
-                    <span style={{ color: theme[p.key] }}>{p.icon}</span> {p.value}
-                  </div>
-                ))}
-              </motion.div>
+          <motion.div className="max-w-2xl mx-auto space-y-4" initial="hidden" whileInView="show" variants={containerStagger} viewport={{ once: true }}>
+            <motion.div variants={cardFade("up")} onMouseMove={spotlight.onMouseMove} className="rounded-2xl p-6 border card-hover spotlight-card relative overflow-hidden" style={cardStyle}>
+              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 font-mono relative z-10" style={{ color: theme.blue }}><Target size={16} /> profile.summary</h3>
+              <GlowText
+                as="p" className="text-base leading-relaxed relative z-10" style={{ color: theme.textSecondary }} glowColor={theme.blue}
+                text={`Data Engineer with ${yearsExpLabel}+ years of experience building cloud-native, scalable data platforms on Microsoft Azure, Databricks, and Snowflake. I design and build ETL/ELT pipelines that are reliable, high-performance, and production-grade — using Python, PySpark, SQL, dbt, and Apache Airflow to turn raw, messy data into business-ready datasets. I'm extending this foundation into Machine Learning, MLOps, and Generative AI — RAG pipelines, vector databases, and prompt engineering — connecting solid data infrastructure with applied AI systems. Data engineering is the backbone of every AI system, and I'm here to build that backbone right.`}
+              />
             </motion.div>
-
-            <motion.div className="rounded-2xl p-6 border" style={cardStyle} initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
-              <h3 className="font-bold text-lg mb-5 flex items-center gap-2 font-mono" style={{ color: theme.pink }}><TrendingUp size={16} /> run_history.log</h3>
-              <div className="relative">
-                <div className="absolute left-4 top-0 bottom-0 w-px" style={{ background: `linear-gradient(180deg, ${theme.green}, ${theme.blue}, ${theme.pink})`, opacity: 0.4 }} />
-                <div className="space-y-5">
-                  {TIMELINE.map((item, i) => (
-                    <motion.div key={i} className="relative flex gap-4 pl-10" initial={{ opacity: 0, x: -12 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}>
-                      <div className="absolute left-2 w-5 h-5 rounded-full flex items-center justify-center border-2 z-10" style={{ background: theme[item.key], borderColor: theme.bg, top: "2px" }}>
-                        <CheckCircle2 size={11} className="text-black" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 font-mono">
-                          <span className="text-sm font-black" style={{ color: theme[item.key] }}>{item.year}</span>
-                          <span className="text-sm font-bold" style={{ color: theme.text }}>{item.title}</span>
-                        </div>
-                        <p className="text-sm mt-0.5" style={{ color: theme.textSecondary }}>{item.desc}</p>
-                      </div>
-                    </motion.div>
-                  ))}
+            <motion.div variants={cardFade("up", 0.07)} onMouseMove={spotlight.onMouseMove} className="rounded-2xl p-6 border card-hover spotlight-card relative overflow-hidden" style={cardStyle}>
+              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 font-mono relative z-10" style={{ color: theme.green }}><BookOpen size={16} /> education.log</h3>
+              <p className="font-bold text-base relative z-10" style={{ color: theme.text }}>B.Tech in Computer Science Engineering</p>
+              <p className="text-base relative z-10" style={{ color: theme.textSecondary }}>University of Petroleum and Energy Studies, Dehradun</p>
+              <p className="text-base mt-1 font-semibold relative z-10" style={{ color: theme.pink }}>Specialization: Cloud Computing and DevOps</p>
+              <p className="text-xs mt-2 font-mono relative z-10" style={{ color: theme.textMuted }}>Aug 2021 – Jun 2025 · Grade: A</p>
+            </motion.div>
+            <motion.div variants={cardFade("up", 0.1)} className="rounded-2xl p-4 border flex flex-wrap gap-2.5" style={cardStyle}>
+              {QUICK_PROOF.map(p => (
+                <div key={p.value} className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm" style={{ borderColor: theme.cardBorder, color: theme.textSecondary }}>
+                  <span style={{ color: theme[p.key] }}>{p.icon}</span> {p.value}
                 </div>
-              </div>
+              ))}
             </motion.div>
-          </div>
+          </motion.div>
         </StageShell>
 
         {/* ===== 02 · EXPERIENCE (DEPLOY) ===== */}
@@ -1821,8 +1854,12 @@ export default function App() {
                           {job.status === "ACTIVE" && <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: theme[job.key] }} />}
                           {job.status}
                         </span>
+                        <span className="font-bold px-2.5 py-1 rounded-full border" style={{ borderColor: theme.cardBorder, color: theme.textSecondary }}>{job.employmentType}</span>
                         <span className="flex items-center gap-1" style={{ color: theme.textMuted }}><Calendar size={11} /> {job.period}</span>
                         <span className="flex items-center gap-1" style={{ color: theme.textMuted }}><MapPin size={11} /> {job.location}</span>
+                        <span className="flex items-center gap-1 font-bold" style={{ color: theme[job.key] }}>
+                          <TrendingUp size={11} /> {formatMonths(jobDurationMonths(job))}
+                        </span>
                       </div>
                       <h3 className="text-lg sm:text-xl font-black" style={{ color: theme.text }}>{job.role}</h3>
                       <p className="text-base font-mono mb-3" style={{ color: theme[job.key] }}>@ {job.company}</p>
@@ -2049,12 +2086,7 @@ export default function App() {
         {/* ===== 06 · CERTIFICATIONS (VALIDATE) ===== */}
         <StageShell id="certifications">
           <div className="grid sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
-            {[
-              { href: "https://credentials.databricks.com/80290364-9760-4912-80bb-628ecb05f2d6#acc.1QyUwPgn", icon: <Award size={22} />, title: "Databricks Certified", sub: "Data Engineer Associate", key: "red" },
-              { href: "https://credentials.databricks.com/e77bcf6d-f559-47e7-beca-608373a5660b#acc.mVhSLHf9", icon: <Sparkles size={22} />, title: "Databricks Certified", sub: "Generative AI Engineer Associate", key: "pink" },
-              { href: "https://www.hackerrank.com/certificates/731721820af3", icon: <ShieldCheck size={22} />, title: "HackerRank SQL", sub: "Advanced", key: "green" },
-              { href: "https://www.hackerrank.com/certificates/6f58d3da3e47", icon: <ShieldCheck size={22} />, title: "HackerRank SQL", sub: "Intermediate", key: "blue" },
-            ].map((cert, i) => (
+            {CERTIFICATIONS.map((cert, i) => (
               <motion.a key={i} href={cert.href} target="_blank" rel="noopener noreferrer" onMouseMove={spotlight.onMouseMove} className="relative overflow-hidden rounded-2xl p-5 flex items-center gap-4 group border spotlight-card" style={cardStyle}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }} whileHover={{ scale: 1.02 }}>
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 relative z-10" style={{ background: theme[cert.key] + "20", color: theme[cert.key] }}>{cert.icon}</div>
