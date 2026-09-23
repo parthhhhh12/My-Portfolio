@@ -81,7 +81,7 @@ const QUICK_PROOF = [
 const WHAT_I_BRING = [
   "Designing scalable ETL/ELT pipelines across Azure, Databricks, and Snowflake.",
   "Writing efficient, production-grade code in Python, PySpark, and SQL.",
-  "Building and orchestrating workflows with dbt and Apache Airflow.",
+  "Building and orchestrating workflows with Dbt and Apache Airflow.",
   "Translating raw, messy data into clean, business-ready datasets.",
   "Applying strong fundamentals in data modeling, performance tuning, and pipeline reliability.",
   "Extending data infrastructure into ML, MLOps, and GenAI — RAG pipelines, vector databases, and prompt engineering.",
@@ -99,9 +99,9 @@ const EXPERIENCE = [
     key: "green",
     bullets: [
       "Designed and developed scalable data pipelines using Azure Synapse and Snowflake, enabling efficient ingestion and transformation of large-scale structured data.",
-      "Implemented dbt-based transformation layers for staging and marts, ensuring modular, testable, and analytics-ready data models with strong data quality checks.",
+      "Implemented Dbt-based transformation layers for staging and marts, ensuring modular, testable, and analytics-ready data models with strong data quality checks.",
     ],
-    tech: ["Azure Synapse", "Snowflake", "dbt", "Apache Airflow", "SQL"],
+    tech: ["Azure Synapse", "Snowflake", "Dbt", "Apache Airflow", "SQL"],
   },
   {
     role: "Cloud and DevOps Intern",
@@ -128,10 +128,11 @@ const SKILLS = [
   { name: "Microsoft Azure", proficiency: "Intermediate", description: "Synapse, ADF, ADLS, Blob", key: "blue", category: "cloud", current: true },
   { name: "Databricks", proficiency: "Intermediate", description: "Notebooks, jobs, MLflow, cluster workflows", key: "pink", category: "data" },
   { name: "Snowflake", proficiency: "Intermediate", description: "Warehousing + analytics queries", key: "blue", category: "data", current: true },
-  { name: "dbt", proficiency: "Intermediate", description: "Staging + marts, tests, docs, ELT patterns", key: "pink", category: "data", current: true },
+  { name: "Dbt", proficiency: "Intermediate", description: "Staging + marts, tests, docs, ELT patterns", key: "pink", category: "data", current: true },
   { name: "AWS", proficiency: "Intermediate", description: "EC2, S3 for infra + storage", key: "amber", category: "cloud" },
   { name: "Docker", proficiency: "Intermediate", description: "Containerized deployments", key: "blue", category: "devops" },
   { name: "Jenkins", proficiency: "Intermediate", description: "CI/CD pipeline automation", key: "pink", category: "devops" },
+  { name: "Git/GitLab", proficiency: "Intermediate", description: "Version control + CI/CD workflows", key: "green", category: "devops" },
   { name: "Airflow", proficiency: "Intermediate", description: "Workflow orchestration", key: "amber", category: "data", current: true },
   { name: "MLflow", proficiency: "Intermediate", description: "Experiment tracking, model registry", key: "amber", category: "ml" },
   { name: "MLOps", proficiency: "Learning", description: "CI/CD for ML, model monitoring", key: "blue", category: "ml" },
@@ -150,7 +151,7 @@ const SKILL_CATEGORIES = [
 ];
 
 /* Real brand logos where devicon has verified coverage; niche data tools
-   (Databricks, Snowflake, dbt, MLflow, Delta Lake) fall back to a colored
+   (Databricks, Snowflake, Dbt, MLflow, Delta Lake) fall back to a colored
    lucide glyph so nothing risks a broken image. */
 const PRIMARY_INSTRUMENTS = [
   { name: "Python", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" },
@@ -158,7 +159,7 @@ const PRIMARY_INSTRUMENTS = [
   { name: "SQL", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" },
   { name: "Databricks", icon: <Database size={26} />, key: "pink" },
   { name: "Snowflake", icon: <Cloud size={26} />, key: "blue" },
-  { name: "dbt", icon: <Workflow size={26} />, key: "amber" },
+  { name: "Dbt", icon: <Workflow size={26} />, key: "amber" },
   { name: "MLflow", icon: <Brain size={26} />, key: "green" },
   { name: "Apache Airflow", icon: <Zap size={26} />, key: "blue" },
 ];
@@ -171,7 +172,7 @@ const CAPABILITIES = [
   },
   {
     code: "OFR.02", title: "Cloud Data Platforms",
-    desc: "Hands-on with Azure (ADF, ADLS, Blob), Databricks, Snowflake, and dbt — building warehouses and lakehouses that scale cleanly from prototype to production.",
+    desc: "Hands-on with Azure (ADF, ADLS, Blob), Databricks, Snowflake, and Dbt — building warehouses and lakehouses that scale cleanly from prototype to production.",
     key: "blue",
   },
   {
@@ -184,25 +185,25 @@ const CAPABILITIES = [
 const PROJECTS = [
   {
     title: "End-to-End Data Engineering Pipeline",
-    subtitle: "Azure Synapse + Snowflake + dbt",
+    subtitle: "Azure Synapse + Snowflake + Dbt",
     duration: "Self-Project", client: "Personal Development", tag: "Data Engineering",
     problem: "Manual ingestion and inconsistent validation lead to unreliable analytics. Teams need automated pipelines with clean/error separation and tested transformations.",
-    objective: "Build an event-driven, production-style pipeline that ingests CSV files from ADLS Gen2, loads RAW data into Snowflake, separates CLEAN/ERROR records, and builds analytics-ready marts using dbt with tests.",
+    objective: "Build an event-driven, production-style pipeline that ingests CSV files from ADLS Gen2, loads RAW data into Snowflake, separates CLEAN/ERROR records, and builds analytics-ready marts using Dbt with tests.",
     approach: [
       "Storage Event Trigger to automatically detect new files in ADLS Gen2",
       "Dynamic Synapse pipeline using Get Metadata + ForEach for file iteration",
       "Copy Activity to load each file into Snowflake RAW tables",
       "Validation logic to split records into CLEAN and ERROR layers with reconciliation",
-      "dbt models (staging → marts) with tests for data quality and business rules",
+      "Dbt models (staging → marts) with tests for data quality and business rules",
     ],
     impact: [
       "Implemented RAW/CLEAN/ERROR layering in Snowflake for reliable downstream analytics",
       "Automated ingestion with event-based trigger + dynamic file processing",
       "Designed a validation framework ensuring 100% data reconciliation between RAW and CLEAN + ERROR tables",
-      "Built analytics-ready fact tables with dbt + tests to validate data quality",
+      "Built analytics-ready fact tables with Dbt + tests to validate data quality",
     ],
-    architecture: ["ADLS Gen2 (CSV)", "Synapse Pipelines", "Snowflake RAW/CLEAN/ERROR", "dbt marts + tests"],
-    tech: ["Azure Synapse", "ADLS Gen2", "Snowflake", "dbt", "SQL"],
+    architecture: ["ADLS Gen2 (CSV)", "Synapse Pipelines", "Snowflake RAW/CLEAN/ERROR", "Dbt marts + tests"],
+    tech: ["Azure Synapse", "ADLS Gen2", "Snowflake", "Dbt", "SQL"],
     repo: "https://github.com/parthhhhh12/-end-to-end-data-engineering-azure-synapse-snowflake.git",
   },
   {
@@ -580,7 +581,7 @@ const SKILL_ALIASES = {
   "gen ai": "Generative AI", "genai": "Generative AI", "spark": "PySpark",
   "azure": "Microsoft Azure", "ms azure": "Microsoft Azure",
   "vector db": "Vector Databases", "vector dbs": "Vector Databases", "agentic ai": "AI Agents",
-  "apache airflow": "Airflow",
+  "apache airflow": "Airflow", "dbt": "Dbt", "git": "Git/GitLab", "gitlab": "Git/GitLab",
 };
 const PROJECT_ALIASES = [
   ["synapse pipeline", "snowflake pipeline", "reconciliation", "raw clean error", "adls", "dbt pipeline", "synapse project"],
@@ -1728,7 +1729,7 @@ export default function App() {
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: theme.green }} /> STATUS: OPEN_TO_OPPORTUNITIES
             </motion.div>
             <motion.p className="text-xs font-mono uppercase tracking-widest mb-4" style={{ color: theme.textMuted }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.08 }}>
-              {`Data Engineer · ${yearsExpLabel}+ Years Experience · Azure · Snowflake · dbt`}
+              {`Data Engineer · ${yearsExpLabel}+ Years Experience · Azure · Snowflake · Dbt`}
             </motion.p>
 
             <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }} className="mb-5">
@@ -1754,7 +1755,7 @@ export default function App() {
 
             <motion.p className="mt-4 max-w-2xl mx-auto" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
               <GlowText
-                text="I build data systems that don't just store and move data — they think. Cloud-native ETL/ELT pipelines across Azure, Databricks, and Snowflake, engineered with Python, PySpark, SQL, dbt, and Airflow — turning raw data into something businesses can actually act on."
+                text="I build data systems that don't just store and move data — they think. Cloud-native ETL/ELT pipelines across Azure, Databricks, and Snowflake, engineered with Python, PySpark, SQL, Dbt, and Airflow — turning raw data into something businesses can actually act on."
                 as="span" className="text-base sm:text-lg leading-relaxed" style={{ color: theme.textSecondary }} radius={100}
               />
             </motion.p>
@@ -1768,7 +1769,7 @@ export default function App() {
             </motion.div>
 
             <motion.div className="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-2xl mx-auto" initial="hidden" animate="show" variants={containerStagger}>
-              <StatTile value={yearsExpLabel} label="years_experience" colorKey="blue" decimals={1} title={yearsExpTooltip} />
+              <StatTile value={yearsExpLabel} label="professional_experience" colorKey="blue" decimals={1} title={yearsExpTooltip} />
               <StatTile value={String(CERTIFICATIONS.length)} label="certifications" colorKey="amber" />
               <StatTile value="5" label="pipelines_shipped" colorKey="green" />
               <StatTile value={String(SKILLS.length)} label="stack_size" colorKey="pink" />
@@ -1812,7 +1813,7 @@ export default function App() {
               <h3 className="font-bold text-lg mb-3 flex items-center gap-2 font-mono relative z-10" style={{ color: theme.blue }}><Target size={16} /> profile.summary</h3>
               <GlowText
                 as="p" className="text-base leading-relaxed relative z-10" style={{ color: theme.textSecondary }} glowColor={theme.blue}
-                text={`Data Engineer with ${yearsExpLabel}+ years of experience building cloud-native, scalable data platforms on Microsoft Azure, Databricks, and Snowflake. I design and build ETL/ELT pipelines that are reliable, high-performance, and production-grade — using Python, PySpark, SQL, dbt, and Apache Airflow to turn raw, messy data into business-ready datasets. I'm extending this foundation into Machine Learning, MLOps, and Generative AI — RAG pipelines, vector databases, and prompt engineering — connecting solid data infrastructure with applied AI systems. Data engineering is the backbone of every AI system, and I'm here to build that backbone right.`}
+                text={`Data Engineer with ${yearsExpLabel}+ years of experience building cloud-native, scalable data platforms on Microsoft Azure, Databricks, and Snowflake. I design and build ETL/ELT pipelines that are reliable, high-performance, and production-grade — using Python, PySpark, SQL, Dbt, and Apache Airflow to turn raw, messy data into business-ready datasets. I'm extending this foundation into Machine Learning, MLOps, and Generative AI — RAG pipelines, vector databases, and prompt engineering — connecting solid data infrastructure with applied AI systems. Data engineering is the backbone of every AI system, and I'm here to build that backbone right.`}
               />
             </motion.div>
             <motion.div variants={cardFade("up", 0.07)} onMouseMove={spotlight.onMouseMove} className="rounded-2xl p-6 border card-hover spotlight-card relative overflow-hidden" style={cardStyle}>
@@ -1938,7 +1939,7 @@ export default function App() {
           <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4" initial="hidden" whileInView="show" variants={containerStagger} viewport={{ once: true }}>
             {[
               { icon: <Cloud size={22} />, title: "Cloud", items: ["Azure Synapse", "ADF", "ADLS Gen2", "AWS EC2/S3"], key: "blue" },
-              { icon: <Database size={22} />, title: "Data Engineering", items: ["PySpark", "Databricks", "Airflow", "Snowflake", "dbt"], key: "green" },
+              { icon: <Database size={22} />, title: "Data Engineering", items: ["PySpark", "Databricks", "Airflow", "Snowflake", "Dbt"], key: "green" },
               { icon: <ShieldCheck size={22} />, title: "DevOps", items: ["Docker", "Jenkins", "Git/GitLab"], key: "amber" },
               { icon: <Sparkles size={22} />, title: "GenAI", items: ["RAG", "Vector DBs", "AI Agents"], key: "pink" },
             ].map((block, i) => (
