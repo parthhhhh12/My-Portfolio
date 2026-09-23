@@ -484,7 +484,7 @@ function CommandPalette({ open, onClose, onNavigate, onToggleTheme, isDark }) {
     { id: "email", label: "Copy email address", hint: "clipboard", action: () => navigator.clipboard?.writeText("parthsingh1253@gmail.com") },
     { id: "github", label: "Open GitHub profile", hint: "external", action: () => window.open("https://github.com/parthhhhh12", "_blank") },
     { id: "linkedin", label: "Open LinkedIn profile", hint: "external", action: () => window.open("https://www.linkedin.com/in/singh05e/", "_blank") },
-    { id: "resume", label: "Download resume", hint: "pdf", action: () => window.open("/My_Professional_Resume.pdf", "_blank") },
+    { id: "resume", label: "Download resume", hint: "pdf", action: () => window.open("/My_Professional_Resume_1.pdf", "_blank") },
     { id: "print", label: "Print / save this page as PDF", hint: "export", action: () => window.print() },
   ]), [isDark, onNavigate, onToggleTheme]);
 
@@ -956,7 +956,7 @@ function ChatBot({ onToggleTheme }) {
 
   const handleAction = (action) => {
     if (action.type === "link") window.open(action.href, "_blank");
-    if (action.type === "resume") window.open("/My_Professional_Resume.pdf", "_blank");
+    if (action.type === "resume") window.open("/My_Professional_Resume_1.pdf", "_blank");
     if (action.type === "email") {
       navigator.clipboard?.writeText("parthsingh1253@gmail.com");
       setCopied(true);
@@ -1677,7 +1677,7 @@ export default function App() {
                   <Command size={12} /> K
                 </motion.button>
                 <ThemeToggle isDark={isDark} onToggle={() => setIsDark(d => !d)} />
-                <MagneticButton as="a" href="/My_Professional_Resume.pdf" target="_blank" rel="noopener noreferrer"
+                <MagneticButton as="a" href="/My_Professional_Resume_1.pdf" target="_blank" rel="noopener noreferrer"
                   className="hidden md:inline-flex items-center gap-2 text-sm font-bold font-mono px-4 py-2 rounded-lg border"
                   style={{ borderColor: theme.green + "55", color: theme.green }}>
                   resume.pdf <ArrowUpRight size={13} />
@@ -1715,7 +1715,7 @@ export default function App() {
                   ))}
                 </nav>
                 <div className="mt-auto">
-                  <a href="/My_Professional_Resume.pdf" target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 border py-3 rounded-xl font-bold text-sm" style={{ borderColor: theme.green + "55", color: theme.green }}>
+                  <a href="/My_Professional_Resume_1.pdf" target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 border py-3 rounded-xl font-bold text-sm" style={{ borderColor: theme.green + "55", color: theme.green }}>
                     resume.pdf <ArrowUpRight size={14} />
                   </a>
                 </div>
@@ -1781,7 +1781,7 @@ export default function App() {
               <MagneticButton onClick={() => scrollTo("projects")} className="shine-btn w-full sm:w-auto px-7 py-3 rounded-xl font-bold text-base font-mono" style={{ background: theme.green, color: theme.onAccent }}>
                 <span className="relative z-10 flex items-center justify-center gap-2"><Rocket size={16} /> view_pipeline_runs()</span>
               </MagneticButton>
-              <MagneticButton as="a" href="/My_Professional_Resume.pdf" target="_blank" rel="noopener noreferrer"
+              <MagneticButton as="a" href="/My_Professional_Resume_1.pdf" target="_blank" rel="noopener noreferrer"
                 className="w-full sm:w-auto px-7 py-3 rounded-xl font-bold text-base border font-mono inline-flex items-center justify-center gap-2"
                 style={{ borderColor: theme.cardBorder, color: theme.textSecondary }}>
                 resume.pdf <ArrowUpRight size={15} />
