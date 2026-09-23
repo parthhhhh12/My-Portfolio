@@ -98,10 +98,11 @@ const EXPERIENCE = [
     employmentType: "Full-time",
     key: "green",
     bullets: [
-      "Designed and developed scalable data pipelines using Azure Synapse and Snowflake, enabling efficient ingestion and transformation of large-scale structured data.",
-      "Implemented Dbt-based transformation layers for staging and marts, ensuring modular, testable, and analytics-ready data models with strong data quality checks.",
+      "Designed and developed scalable data pipelines using Snowflake, Azure Synapse, and SQL, including creating and maintaining database tables, schemas, and data models to support efficient ingestion and transformation of structured data.",
+      "Implemented Dbt-based transformation layers for staging and marts, developing SQL models and data quality checks while managing table-level grants and access permissions across Snowflake and Dbt environments.",
+      "Orchestrated and monitored data pipelines using Apache Airflow, while using Git/GitLab for version control, code collaboration, branching, and deployment workflows across development environments.",
     ],
-    tech: ["Azure Synapse", "Snowflake", "Dbt", "Apache Airflow", "SQL"],
+    tech: ["Azure Synapse", "Snowflake", "Dbt", "Apache Airflow", "SQL", "GitLab"],
   },
   {
     role: "Cloud and DevOps Intern",
@@ -1317,10 +1318,11 @@ function StatTile({ value, label, colorKey, decimals = 0, title }) {
 
   return (
     <div ref={ref} onMouseMove={spotlight.onMouseMove} title={title} className="rounded-lg border px-4 py-3 text-left spotlight-card relative overflow-hidden" style={{ background: theme.cardBg, borderColor: theme.cardBorder }}>
-      <div className="flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-widest relative z-10" style={{ color: theme.textMuted }}>
-        <span className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />{label}
+      <div className="flex items-start gap-1.5 text-[11px] font-mono uppercase tracking-wide leading-snug relative z-10 min-h-[28px]" style={{ color: theme.textMuted }}>
+        <span className="w-1.5 h-1.5 rounded-full mt-1 flex-shrink-0" style={{ background: color }} />
+        <span className="break-words">{label}</span>
       </div>
-      <div className="text-2xl sm:text-3xl font-bold font-mono mt-1 relative z-10" style={{ color }}>{display}{value.includes("+") ? "+" : ""}</div>
+      <div className="text-2xl sm:text-3xl font-bold font-mono mt-1.5 relative z-10" style={{ color }}>{display}{value.includes("+") ? "+" : ""}</div>
     </div>
   );
 }
@@ -1769,7 +1771,7 @@ export default function App() {
             </motion.div>
 
             <motion.div className="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-2xl mx-auto" initial="hidden" animate="show" variants={containerStagger}>
-              <StatTile value={yearsExpLabel} label="professional_experience" colorKey="blue" decimals={1} title={yearsExpTooltip} />
+              <StatTile value={yearsExpLabel} label="professional_exp" colorKey="blue" decimals={1} title={yearsExpTooltip} />
               <StatTile value={String(CERTIFICATIONS.length)} label="certifications" colorKey="amber" />
               <StatTile value="5" label="pipelines_shipped" colorKey="green" />
               <StatTile value={String(SKILLS.length)} label="stack_size" colorKey="pink" />
