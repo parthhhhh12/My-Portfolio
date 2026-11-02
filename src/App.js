@@ -653,16 +653,30 @@ function formatMonths(totalMonths) {
    full descriptive answer. */
 const DURATION_QUESTION_RE = /\bhow (many|much|long)\b|\bin (years|months)\b|\bduration\b|\btenure\b/;
 
-/* Decimal-years version of the same real date arithmetic, used anywhere the
-   UI needs a single live number (hero stat tile, subtitle, profile summary)
-   instead of a "X years Y months" sentence. Same source of truth as
-   jobDurationMonths, so the two can never drift apart or need separate edits
-   as time passes. */
+/* Decimal-years version of the same real date arithmetic (kept for
+   reference; the UI now uses totalExperienceMonths below). */
 function calcExperienceYears(startDateStr, endDateStr) {
   const start = new Date(startDateStr);
   const end = endDateStr ? new Date(endDateStr) : new Date();
   const diffMs = end.getTime() - start.getTime();
   return Math.max(diffMs / (1000 * 60 * 60 * 24 * 365.25), 0);
+}
+
+/* Total professional experience shown across the site, counted from the
+   joining date of the ACTIVE job in EXPERIENCE (Nagarro, 1 Jul 2025).
+   Nothing is hardcoded: every new month that passes adds one month
+   automatically. To change the figure, edit only that job's `start` date. */
+function totalExperienceMonths(now = new Date()) {
+  const job = EXPERIENCE.find((e) => e.status === "ACTIVE") || EXPERIENCE[0];
+  const [y, m, d] = job.start.split("-").map(Number);
+  let months = (now.getFullYear() - y) * 12 + (now.getMonth() - (m - 1));
+  if (now.getDate() < d) months -= 1;
+  return Math.max(months, 0);
+}
+
+/* Floored to 1 decimal so "X+" is always truthful: 1.5+, 1.6+, 1.7+ ... */
+function experienceLabel(totalMonths) {
+  return (Math.floor((totalMonths / 12) * 10 + 1e-9) / 10).toFixed(1);
 }
 
 const CHAT_INTENTS = [
@@ -697,11 +711,7 @@ const CHAT_INTENTS = [
     keywords: ["how many years", "years of experience", "fresher", "experience level", "senior or junior"],
     response: () => {
       const primary = EXPERIENCE.find((e) => e.status === "ACTIVE") || EXPERIENCE[0];
-      const intern = EXPERIENCE.find((e) => e.status !== "ACTIVE");
-      const primaryDur = formatMonths(jobDurationMonths(primary));
-      const internDur = intern ? formatMonths(jobDurationMonths(intern)) : null;
-      return `About ${primaryDur} of ${primary.employmentType.toLowerCase()} experience as a ${primary.role} at ${primary.company} (since ${primary.period.split(" – ")[0]})` +
-        (intern ? `, plus a ${internDur} ${intern.employmentType.toLowerCase()} as ${intern.role} at ${intern.company} (${intern.period}).` : ".");
+      return `${experienceLabel(totalExperienceMonths())}+ years of professional experience — currently a ${primary.role} at ${primary.company} (since ${primary.period.split(" – ")[0]}).`;
     },
   },
   {
@@ -840,9 +850,8 @@ function matchChatIntent(input) {
 
   if (!expHit && isDurationQuestion && /\b(experience|company|companies|tenure|job|work|nagarro|canara|hsbc)\b/.test(text)) {
     const lines = EXPERIENCE.map((e) => `- ${e.company}: ${formatMonths(jobDurationMonths(e))} · ${e.employmentType} (${e.period})`);
-    const primary = EXPERIENCE.find((e) => e.status === "ACTIVE") || EXPERIENCE[0];
     return {
-      text: `Company tenure:\n${lines.join("\n")}\n\nTotal full-time experience: ${formatMonths(jobDurationMonths(primary))}.`,
+      text: `Company tenure:\n${lines.join("\n")}\n\nTotal professional experience: ${experienceLabel(totalExperienceMonths())}+ years.`,
       actions: [],
       intentId: "duration-lookup",
     };
@@ -1470,15 +1479,13 @@ function UptimeTicker() {
 }
 
 /* ============================
-   Live experience ticker — shows real elapsed time on the job (years,
-   months, days), recomputed from EXPERIENCE[].start on an interval so it
-   never needs a manual bump. Sits in the nav next to the uptime ticker.
+   Live experience ticker — month-based, driven by totalExperienceMonths()
+   so it moves forward by itself every month with no manual edits.
    ============================ */
-function ExperienceTicker({ years }) {
+function ExperienceTicker({ months }) {
   const theme = useTheme();
-  const totalDays = years * 365.25;
-  const y = Math.floor(totalDays / 365.25);
-  const m = Math.floor((totalDays - y * 365.25) / 30.4368);
+  const y = Math.floor(months / 12);
+  const m = months % 12;
   return (
     <span className="hidden lg:flex items-center gap-1.5 text-xs font-mono" style={{ color: theme.textMuted }}>
       <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: theme.blue }} />
@@ -1507,18 +1514,18 @@ export default function App() {
   const sectionRefs = useRef({});
   const sectionIds = useMemo(() => SECTION_IDS, []);
 
-  /* Total full-time experience, computed live from EXPERIENCE's active-job
-     start date rather than hardcoded — this grows automatically every time
-     the page loads, and re-ticks hourly for long-lived tabs, so "1.3 yrs"
-     today becomes "1.4 yrs" next month with zero manual edits ever needed. */
+  /* Total professional experience, computed from the real joining date
+     (1 Jul 2025). It re-checks hourly for long-lived tabs, so the hero line,
+     stat tile, profile summary, nav ticker and chatbot all grow
+     automatically: Nov 2026 -> 1.3+, Jan 2027 -> 1.5+, Jul 2027 -> 2.0+. */
   const primaryJob = useMemo(() => EXPERIENCE.find((e) => e.status === "ACTIVE") || EXPERIENCE[0], []);
-  const [yearsExp, setYearsExp] = useState(() => calcExperienceYears(primaryJob.start, primaryJob.end));
+  const [expMonths, setExpMonths] = useState(() => totalExperienceMonths());
   useEffect(() => {
-    const timer = setInterval(() => setYearsExp(calcExperienceYears(primaryJob.start, primaryJob.end)), 1000 * 60 * 60);
+    const timer = setInterval(() => setExpMonths(totalExperienceMonths()), 1000 * 60 * 60);
     return () => clearInterval(timer);
-  }, [primaryJob]);
-  const yearsExpLabel = yearsExp.toFixed(1);
-  const yearsExpTooltip = `${formatMonths(jobDurationMonths(primaryJob))} at ${primaryJob.company} (since ${primaryJob.period.split(" – ")[0]})`;
+  }, []);
+  const yearsExpLabel = experienceLabel(expMonths); // "1.3" now, "1.4" in Dec, etc.
+  const yearsExpTooltip = `${formatMonths(expMonths)} of professional experience (since ${primaryJob.period.split(" – ")[0]})`;
 
   useEffect(() => {
     const stage = STAGES.find(s => s.id === activeSection);
@@ -1669,7 +1676,7 @@ export default function App() {
               </div>
 
               <div className="flex items-center gap-2.5">
-                <ExperienceTicker years={yearsExp} />
+                <ExperienceTicker months={expMonths} />
                 <UptimeTicker />
                 <motion.button onClick={() => setPaletteOpen(true)}
                   className="hidden sm:flex items-center gap-1.5 text-xs font-mono px-2.5 py-1.5 rounded-lg border" style={{ borderColor: theme.cardBorder, color: theme.textMuted }}
